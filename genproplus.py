@@ -7,6 +7,16 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import csv
 
+"""
+input 0 = action_type
+input 1 = xpath
+input 2 = coords
+input 3 = viewport
+input 4 = timeout
+"""
+
+
+
 class ScriptGenerator:
     DEFAULT_BROWSER = "Chrome"
 
