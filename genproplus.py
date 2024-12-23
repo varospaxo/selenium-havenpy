@@ -178,7 +178,7 @@ class ScriptGenerator:
         elif action_type == "get_alert_text":
             script += f"alert_text = driver.switch_to.alert.text\n"
         elif action_type == "set_alert_text":
-            script += f"driver.execute_script(f'alert('{xpath}')')\n"
+            script += f"driver.execute_script(\"alert('{xpath}')\")\n"
         elif action_type == "get_attribute":
             script += f"element = driver.find_element_by_xpath('{xpath}')\n"
             script += f"attribute = element.get_attribute('{coords}')\n"
