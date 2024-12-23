@@ -275,7 +275,7 @@ class SeleniumScriptGeneratorApp:
     def _create_help_button(self):
         instructions = (
             "Instructions:\n"
-            "Use the following command formats to interact with web elements effectively. Below are the commands and their expected parameters.\n\n"
+            "Use the following command formats to interact with web elements effectively. Below are the commands and their expected parameters.\nNote: Never use XPaths and inputs with single quotes ('')\n\n"
             
             "1. click - Perform a click action on the specified element.\n"
             "   Format: click|XPath|coordinates(optional)|resolution(optional)\n"
