@@ -139,77 +139,138 @@ class SeleniumScriptGeneratorApp:
     def __init__(self, root):
         self.root = root
         self.root.title("Selenium Script Generator")
-        # self.root.geometry("800x400")
+        
+        # Configure grid weights for responsiveness
+        self.root.grid_columnconfigure(1, weight=1)  # Make column 1 expandable
+        for i in range(8):  # Configure rows 0-7
+            self.root.grid_rowconfigure(i, weight=1 if i in [3, 7] else 0)
 
         self.script_generator = ScriptGenerator()
 
         self._create_browser_selection()
         self._create_url_input()
         self._create_actions_input()
+        self._create_help_button()
         self._create_folder_name_input()
         self._create_script_name_input()
-        self._create_generate_button()
+        self._create_buttons_frame()
         self._create_generated_script_output()
 
     def _create_browser_selection(self):
         browser_label = tk.Label(self.root, text="Select a Browser:")
-        browser_label.pack(anchor="w", padx=10, pady=5)
+        browser_label.grid(row=0, column=0, sticky="w", padx=10, pady=5)
 
         self.browser_var = tk.StringVar()
         self.browser_var.set(ScriptGenerator.DEFAULT_BROWSER)
-        browser_option = ttk.Combobox(self.root, textvariable=self.browser_var, values=["Chrome", "Firefox"])
-        browser_option.pack(fill="x", padx=10)
+        browser_option = ttk.Combobox(self.root, textvariable=self.browser_var, 
+                                    values=["Chrome", "Firefox"])
+        browser_option.grid(row=0, column=1, padx=10, pady=5, sticky="ew")
 
     def _create_url_input(self):
         url_label = tk.Label(self.root, text="URL:")
-        url_label.pack(anchor="w", padx=10, pady=5)
+        url_label.grid(row=1, column=0, sticky="w", padx=10, pady=5)
 
         self.url_entry = tk.Entry(self.root)
-        self.url_entry.pack(fill="x", padx=10)
+        self.url_entry.grid(row=1, column=1, padx=10, pady=5, sticky="ew")
 
     def _create_actions_input(self):
-        actions_label = tk.Label(self.root, text="Actions (One per line in format 'action|XPath|Coordinates|Resolution'):")
-        actions_label.pack(anchor="w", padx=10, pady=5)
+        actions_label = tk.Label(self.root, text="Actions:")
+        actions_label.grid(row=3, column=0, sticky="nw", padx=10, pady=5)
 
+        # Create a frame for the text area and scrollbar
         self.actions_frame = tk.Frame(self.root)
-        self.actions_frame.pack(fill="both", expand=True, padx=10, pady=5)
+        self.actions_frame.grid(row=3, column=1, padx=10, pady=5, sticky="nsew")
+        self.actions_frame.grid_columnconfigure(0, weight=1)
+        self.actions_frame.grid_rowconfigure(0, weight=1)
 
-        actions_scrollbar = tk.Scrollbar(self.actions_frame, orient="vertical")
-        self.actions_text = tk.Text(self.actions_frame, height=6, wrap="word", yscrollcommand=actions_scrollbar.set)
-        actions_scrollbar.config(command=self.actions_text.yview)
-        actions_scrollbar.pack(side="right", fill="y")
-        self.actions_text.pack(fill="both", expand=True)
+        # Create scrollbar and text widget
+        self.actions_scrollbar = tk.Scrollbar(self.actions_frame)
+        self.actions_text = tk.Text(self.actions_frame, height=6, wrap="word",
+                                  yscrollcommand=self.actions_scrollbar.set)
+        
+        # Configure scrollbar
+        self.actions_scrollbar.config(command=self.actions_text.yview)
+        
+        # Pack scrollbar and text widget
+        self.actions_scrollbar.pack(side="right", fill="y")
+        self.actions_text.pack(side="left", fill="both", expand=True)
+
+    def _create_help_button(self):
+        placeholder_text = (
+            "click - click|XPath|Coordinates|Resolution\n"
+            "input - input|XPath|text\n"
+            "submit - submit|XPath(form)\n"
+            "sleep - sleep|seconds"
+        )
+
+        def add_placeholder():
+            self.actions_text.delete("1.0", tk.END)
+            self.actions_text.insert("1.0", placeholder_text)
+
+        help_button = tk.Button(self.root, text="Help", command=add_placeholder)
+        help_button.grid(row=2, column=1, padx=10, pady=5, sticky="e")
 
     def _create_folder_name_input(self):
         folder_label = tk.Label(self.root, text="Folder Name:")
-        folder_label.pack(anchor="w", padx=10, pady=5)
+        folder_label.grid(row=4, column=0, sticky="w", padx=10, pady=5)
 
         self.folder_entry = tk.Entry(self.root)
-        self.folder_entry.pack(fill="x", padx=10, pady=5)
+        self.folder_entry.grid(row=4, column=1, padx=10, pady=5, sticky="ew")
 
     def _create_script_name_input(self):
         script_label = tk.Label(self.root, text="Script Name:")
-        script_label.pack(anchor="w", padx=10, pady=5)
+        script_label.grid(row=5, column=0, sticky="w", padx=10, pady=5)
 
         self.script_entry = tk.Entry(self.root)
-        self.script_entry.pack(fill="x", padx=10, pady=5)
+        self.script_entry.grid(row=5, column=1, padx=10, pady=5, sticky="ew")
 
-    def _create_generate_button(self):
-        generate_button = tk.Button(self.root, text="Generate Script", command=self.generate_and_save_script)
-        generate_button.pack(pady=10)
+    def _create_buttons_frame(self):
+        # Create a frame for the buttons
+        buttons_frame = tk.Frame(self.root)
+        buttons_frame.grid(row=6, column=0, columnspan=2, padx=10, pady=5, sticky="ew")
+        buttons_frame.grid_columnconfigure(0, weight=1)
+        buttons_frame.grid_columnconfigure(1, weight=1)
+
+        # Generate button
+        self.generate_button = tk.Button(buttons_frame, text="Generate Script",
+                                       command=self.generate_and_save_script)
+        self.generate_button.grid(row=0, column=0, padx=5, sticky="ew")
+
+        # Reset button
+        self.reset_button = tk.Button(buttons_frame, text="Reset",
+                                    command=self._reset_fields)
+        self.reset_button.grid(row=0, column=1, padx=5, sticky="ew")
 
     def _create_generated_script_output(self):
         output_label = tk.Label(self.root, text="Generated Script:")
-        output_label.pack(anchor="w", padx=10, pady=5)
+        output_label.grid(row=7, column=0, sticky="nw", padx=10, pady=5)
 
+        # Create a frame for the output text area and scrollbar
         self.output_frame = tk.Frame(self.root)
-        self.output_frame.pack(fill="both", expand=True, padx=10, pady=5)
+        self.output_frame.grid(row=7, column=1, padx=10, pady=5, sticky="nsew")
+        self.output_frame.grid_columnconfigure(0, weight=1)
+        self.output_frame.grid_rowconfigure(0, weight=1)
 
-        output_scrollbar = tk.Scrollbar(self.output_frame, orient="vertical")
-        self.generated_script = tk.Text(self.output_frame, height=6, wrap="word", yscrollcommand=output_scrollbar.set)
-        output_scrollbar.config(command=self.generated_script.yview)
-        output_scrollbar.pack(side="right", fill="y")
-        self.generated_script.pack(fill="both", expand=True)
+        # Create scrollbar and text widget
+        self.output_scrollbar = tk.Scrollbar(self.output_frame)
+        self.generated_script = tk.Text(self.output_frame, height=6, wrap="word",
+                                      yscrollcommand=self.output_scrollbar.set)
+        
+        # Configure scrollbar
+        self.output_scrollbar.config(command=self.generated_script.yview)
+        
+        # Pack scrollbar and text widget
+        self.output_scrollbar.pack(side="right", fill="y")
+        self.generated_script.pack(side="left", fill="both", expand=True)
+
+    def _reset_fields(self):
+        """Reset all input fields to their default state"""
+        self.browser_var.set(ScriptGenerator.DEFAULT_BROWSER)
+        self.url_entry.delete(0, tk.END)
+        self.actions_text.delete("1.0", tk.END)
+        self.folder_entry.delete(0, tk.END)
+        self.script_entry.delete(0, tk.END)
+        self.generated_script.delete("1.0", tk.END)
 
     def generate_and_save_script(self):
         selected_browser = self.browser_var.get()
@@ -273,5 +334,5 @@ class SeleniumScriptGeneratorApp:
 if __name__ == "__main__":
     root = tk.Tk()
     app = SeleniumScriptGeneratorApp(root)
-    root.geometry("600x700")
+    root.geometry("600x700")  # Set initial size
     root.mainloop()
