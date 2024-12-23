@@ -147,7 +147,7 @@ class ScriptGenerator:
             script += f"element = driver.find_element_by_xpath('{xpath}')\n"
             script += f"driver.execute_script('arguments[0].scrollIntoView(true);', element)\n"
         elif action_type == "scroll_by":
-            script += f"driver.execute_script('window.scrollBy({x}, {y})')\n"
+            script += f"driver.execute_script('window.scrollBy({xpath}, {coords})')\n"
         elif action_type == "hover":
             script += f"element = driver.find_element_by_xpath('{xpath}')\n"
             script += f"actions = ActionChains(driver)\n"
@@ -168,7 +168,7 @@ class ScriptGenerator:
         elif action_type == "drag_and_drop_by":
             script += f"element = driver.find_element_by_xpath('{xpath}')\n"
             script += f"actions = ActionChains(driver)\n"
-            script += f"actions.drag_and_drop_by_offset(element, {x}, {y}).perform()\n"
+            script += f"actions.drag_and_drop_by_offset(element, {coords}, {viewport}).perform()\n"
         elif action_type == "accept_alert":
             script += f"driver.switch_to.alert.accept()\n"
         elif action_type == "dismiss_alert":
