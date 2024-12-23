@@ -1,0 +1,198 @@
+# Selenium Havenpy
+
+## Instructions:
+
+Use the following command formats to interact with web elements effectively. Below are the commands and their expected parameters. 
+
+**Note: Never use XPaths and inputs with single quotes ('')**
+
+---
+
+### 1. click - Perform a click action on the specified element.
+   **Format**: `click|XPath|coordinates(optional)|resolution(optional)`
+   **Example**: `click|//button[@id="submit"]|100,200|1920x1080`
+
+---
+
+### 2. input - Enter text into an input field.
+   **Format**: `input|XPath|text`
+   **Example**: `input|//input[@name="username"]|test_user`
+
+---
+
+### 3. submit - Submit a form element.
+   **Format**: `submit|XPath(form)`
+   **Example**: `submit|//form[@id="loginForm"]`
+
+---
+
+### 4. sleep - Pause the execution for a specified number of seconds.
+   **Format**: `sleep|seconds`
+   **Example**: `sleep|5`
+
+---
+
+### 5. wait - Wait for a specific condition to be met on an element.
+   **Format**: `wait|XPath|until/until_not|mode|timeout`
+   **Example**: `wait|//div[@id="loading"]|until|visible|10`
+
+**Modes for 'wait':**
+   - `"visible"`: Wait until the element is visible.
+   - `"invisible"`: Wait until the element is not visible.
+   - `"clickable"`: Wait until the element is clickable.
+   - `"presence"`: Wait until the element is present in the DOM.
+   - `"staleness"`: Wait until the element becomes stale (is no longer attached to the DOM).
+
+---
+
+### Additional Actions:
+
+### 6. scroll - Scroll to the bottom of the page.
+   **Format**: `scroll`
+   **Example**: `scroll`
+
+---
+
+### 7. scroll_up - Scroll to the top of the page.
+   **Format**: `scroll_up`
+   **Example**: `scroll_up`
+
+---
+
+### 8. scroll_to - Scroll to make an element visible.
+   **Format**: `scroll_to|XPath`
+   **Example**: `scroll_to|//div[@id="content"]`
+
+---
+
+### 9. scroll_by - Scroll by specific x and y offsets.
+   **Format**: `scroll_by|x|y`
+   **Example**: `scroll_by|0|500`
+
+---
+
+### 10. hover - Hover over an element.
+   **Format**: `hover|XPath`
+   **Example**: `hover|//button[@class="menu"]`
+
+---
+
+### 11. right_click - Perform a right-click on an element.
+   **Format**: `right_click|XPath`
+   **Example**: `right_click|//div[@id="context-menu"]`
+
+---
+
+### 12. double_click - Perform a double-click on an element.
+   **Format**: `double_click|XPath`
+   **Example**: `double_click|//button[@class="edit"]`
+
+---
+
+### 13. drag_and_drop - Drag and drop an element to a target location.
+   **Format**: `drag_and_drop|sourceXPath|targetXPath`
+   **Example**: `drag_and_drop|//div[@id="item"]|//div[@id="target"]`
+
+---
+
+### 14. drag_and_drop_by - Drag an element by a specific offset.
+   **Format**: `drag_and_drop_by|XPath|x|y`
+   **Example**: `drag_and_drop_by|//div[@id="item"]|100|200`
+
+---
+
+### 15. accept_alert - Accept a browser alert.
+   **Format**: `accept_alert`
+   **Example**: `accept_alert`
+
+---
+
+### 16. dismiss_alert - Dismiss a browser alert.
+   **Format**: `dismiss_alert`
+   **Example**: `dismiss_alert`
+
+---
+
+### 17. send_keys_alert - Send keys to an alert input box.
+   **Format**: `send_keys_alert|text`
+   **Example**: `send_keys_alert|username123`
+
+---
+
+### 18. get_alert_text - Retrieve the text of an alert.
+   **Format**: `get_alert_text`
+   **Example**: `get_alert_text`
+
+---
+
+### 19. set_alert_text - Create a custom alert with a message.
+   **Format**: `set_alert_text|text`
+   **Example**: `set_alert_text|Hello World`
+
+---
+
+### 20. get_attribute - Get a specified attribute of an element.
+   **Format**: `get_attribute|XPath|attributeName`
+   **Example**: `get_attribute|//input[@id="username"]|value`
+
+---
+
+### 21. get_css_value - Retrieve the CSS value of a property for an element.
+   **Format**: `get_css_value|XPath|property`
+   **Example**: `get_css_value|//div[@id="box"]|color`
+
+---
+
+### 22. get_property - Retrieve a property of an element.
+   **Format**: `get_property|XPath|propertyName`
+   **Example**: `get_property|//input[@id="checkbox"]|checked`
+
+---
+
+### 23. get_text - Retrieve the text content of an element.
+   **Format**: `get_text|XPath`
+   **Example**: `get_text|//p[@id="message"]`
+
+---
+
+### 24. get_title - Retrieve the page title.
+   **Format**: `get_title`
+   **Example**: `get_title`
+
+---
+
+### 25. get_url - Retrieve the current page URL.
+   **Format**: `get_url`
+   **Example**: `get_url`
+
+---
+
+### 26. get_page_source - Retrieve the HTML source of the current page.
+   **Format**: `get_page_source`
+   **Example**: `get_page_source`
+
+---
+
+### 27. get_cookies - Retrieve all browser cookies.
+   **Format**: `get_cookies`
+   **Example**: `get_cookies`
+
+---
+
+### 28. add_cookie - Add a new browser cookie.
+   **Format**: `add_cookie|cookieData`
+   **Example**: `add_cookie|{"name": "session", "value": "12345"}`
+
+---
+
+### 29. delete_cookie - Delete a specific browser cookie.
+   **Format**: `delete_cookie|cookieName`
+   **Example**: `delete_cookie|session`
+
+---
+
+### 30. delete_all_cookies - Delete all browser cookies.
+   **Format**: `delete_all_cookies`
+   **Example**: `delete_all_cookies`
+
+---
