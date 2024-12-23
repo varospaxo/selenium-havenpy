@@ -7,14 +7,6 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import csv
 
-
-"""HELP
-click - click|XPath|Coordinates|Resolution
-input - input|XPath|text
-submit - submit|XPath(form)
-sleep - sleep|seconds
-"""
-
 class ScriptGenerator:
     DEFAULT_BROWSER = "Chrome"
 
@@ -66,7 +58,7 @@ class ScriptGenerator:
 
     def _generate_action(self, index, action):
         wait = 5
-        action_type, xpath, coords, viewport = action
+        action_type, xpath, coords, viewport, timeout = action
         
         # Parse coordinates and viewport
         if coords and ',' in coords:
@@ -128,6 +120,24 @@ class ScriptGenerator:
             script += (
                 f"time.sleep({xpath})\n"
             )
+        elif action_type == "wait":
+            timeout = timeout if timeout else 5  # Set timeout default if not specified
+            script += f"try:\n"
+            script += f"    wait = WebDriverWait(driver, {timeout})\n"
+            condition_map = {
+                "visible": "visibility_of_element_located",
+                "invisible": "invisibility_of_element_located",
+                "clickable": "element_to_be_clickable",
+                "presence": "presence_of_element_located",
+                "staleness": "staleness_of"
+            }
+            if viewport in condition_map:
+                condition = condition_map[viewport]
+                if coords == "until":
+                    script += f"    wait.until(EC.{condition}((By.XPATH, '{xpath}')))\n"
+                elif coords == "until_not":
+                    script += f"    wait.until_not(EC.{condition}((By.XPATH, '{xpath}')))\n"
+            script += f"except: print('Wait element failed')\n"
         return script
 
 import tkinter as tk
@@ -196,16 +206,46 @@ class SeleniumScriptGeneratorApp:
         self.actions_text.pack(side="left", fill="both", expand=True)
 
     def _create_help_button(self):
-        placeholder_text = (
-            "click - click|XPath|Coordinates|Resolution\n"
-            "input - input|XPath|text\n"
-            "submit - submit|XPath(form)\n"
-            "sleep - sleep|seconds"
+        instructions = (
+            "Instructions:\n"
+            "Use the following command formats to interact with web elements effectively. Below are the commands and their expected parameters.\n\n"
+            
+            "1. click - Perform a click action on the specified element.\n"
+            "   Format: click|XPath|coordinates(optional)|resolution(optional)\n"
+            "   Example: click|//button[@id=\"submit\"]|100,200|1920x1080\n\n"
+            
+            "2. input - Enter text into an input field.\n"
+            "   Format: input|XPath|text\n"
+            "   Example: input|//input[@name=\"username\"]|test_user\n\n"
+            
+            "3. submit - Submit a form element.\n"
+            "   Format: submit|XPath(form)\n"
+            "   Example: submit|//form[@id=\"loginForm\"]\n\n"
+            
+            "4. sleep - Pause the execution for a specified number of seconds.\n"
+            "   Format: sleep|seconds\n"
+            "   Example: sleep|5\n\n"
+            
+            "5. wait - Wait for a specific condition to be met on an element.\n"
+            "   Format: wait|XPath|until/until_not|mode|timeout\n"
+            "   Example: wait|//div[@id=\"loading\"]|until|visible|10\n\n"
+            
+            "Modes for 'wait':\n"
+            "   \"visible\": Wait until the element is visible.\n"
+            "   Example: wait|//div[@id=\"element\"]|until|visible|10\n\n"
+            "   \"invisible\": Wait until the element is not visible.\n"
+            "   Example: wait|//div[@id=\"popup\"]|until_not|invisible|5\n\n"
+            "   \"clickable\": Wait until the element is clickable.\n"
+            "   Example: wait|//button[@class=\"submit\"]|until|clickable|8\n\n"
+            "   \"presence\": Wait until the element is present in the DOM.\n"
+            "   Example: wait|//span[@class=\"message\"]|until|presence|15\n\n"
+            "   \"staleness\": Wait until the element becomes stale (is no longer attached to the DOM).\n"
+            "   Example: wait|//div[@class=\"content\"]|until_not|staleness|12\n"
         )
 
         def add_placeholder():
-            self.actions_text.delete("1.0", tk.END)
-            self.actions_text.insert("1.0", placeholder_text)
+            self.generated_script.delete("1.0", tk.END)
+            self.generated_script.insert("1.0", instructions)
 
         help_button = tk.Button(self.root, text="Help", command=add_placeholder)
         help_button.grid(row=2, column=1, padx=10, pady=5, sticky="e")
@@ -285,7 +325,8 @@ class SeleniumScriptGeneratorApp:
             xpath = action[1].strip() if len(action) > 1 else ""
             coords = action[2].strip() if len(action) > 2 else ""
             viewport = action[3].strip() if len(action) > 3 else ""
-            actions.append((action_type, xpath, coords, viewport))
+            timeout = action[4].strip() if len(action) > 4 else ""
+            actions.append((action_type, xpath, coords, viewport, timeout))
             if action_type in ["type", "input"]:
                 input_values.append((f"input_value_{i}", coords))
         
