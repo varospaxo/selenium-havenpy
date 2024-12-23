@@ -140,7 +140,24 @@ class ScriptGenerator:
                 "invisible": "invisibility_of_element_located",
                 "clickable": "element_to_be_clickable",
                 "presence": "presence_of_element_located",
-                "staleness": "staleness_of"
+                "staleness": "staleness_of",
+                "selected": "element_to_be_selected",
+                "deselected": "element_to_be_deselected",
+                "text_to_be_present": "text_to_be_present_in_element",
+                "text_to_be_present_in_value": "text_to_be_present_in_element_value",
+                "frame_to_be_available": "frame_to_be_available_and_switch_to_it",
+                "alert_is_present": "alert_is_present",
+                "title_contains": "title_contains",
+                "title_is": "title_is",
+                "url_contains": "url_contains",
+                "url_matches": "url_matches",
+                "url_to_be": "url_to_be",
+                "url_changes": "url_changes",
+                "number_of_windows_to_be": "number_of_windows_to_be",
+                "new_window_is_opened": "new_window_is_opened",
+                "element_located_to_be_selected": "element_located_to_be_selected",
+                "element_selection_state_to_be": "element_selection_state_to_be",
+                "element_located_selection_state_to_be": "element_located_selection_state_to_be"   
             }
             if viewport in condition_map:
                 condition = condition_map[viewport]
@@ -312,7 +329,25 @@ class SeleniumScriptGeneratorApp:
             "   \"invisible\": Wait until the element is not visible.\n"
             "   \"clickable\": Wait until the element is clickable.\n"
             "   \"presence\": Wait until the element is present in the DOM.\n"
-            "   \"staleness\": Wait until the element becomes stale (is no longer attached to the DOM).\n\n"
+            "   \"staleness\": Wait until the element becomes stale (is no longer attached to the DOM).\n"
+            "   \"selected\": Wait until the element is selected.\n"
+            "   \"deselected\": Wait until the element is deselected.\n"
+            "   \"text_to_be_present\": Wait until the specified text is present in the element.\n"
+            "   \"text_to_be_present_in_value\": Wait until the specified text is present in the element's value.\n"
+            "   \"frame_to_be_available\": Wait until the frame is available and switch to it.\n"
+            "   \"alert_is_present\": Wait until an alert is present.\n"
+            "   \"title_contains\": Wait until the title contains the specified text.\n"
+            "   \"title_is\": Wait until the title is exactly the specified text.\n"
+            "   \"url_contains\": Wait until the URL contains the specified text.\n"
+            "   \"url_matches\": Wait until the URL matches the specified pattern.\n"
+            "   \"url_to_be\": Wait until the URL is exactly the specified URL.\n"
+            "   \"url_changes\": Wait until the URL changes.\n"
+            "   \"number_of_windows_to_be\": Wait until the number of open windows matches the specified count.\n"
+            "   \"new_window_is_opened\": Wait until a new window is opened.\n"
+            "   \"element_located_to_be_selected\": Wait until the located element is selected.\n"
+            "   \"element_selection_state_to_be\": Wait until the element's selection state matches the specified state.\n"
+            "   \"element_located_selection_state_to_be\": Wait until the located element's selection state matches the specified state.\n\n"
+
             
             "Additional Actions:\n"
             
