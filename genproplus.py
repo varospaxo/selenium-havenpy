@@ -97,6 +97,7 @@ class ScriptGenerator:
 
             if x and y:
                 script += (
+                    f"    print('Failed to find XPath. Trying coordinate click.')\n" 
                     f"    actions = ActionChains(driver)\n"
                     f"    actions.move_by_offset({x}, {y}).click().perform()\n"
                     f"    actions.move_by_offset(-{x}, -{y}).perform()\n"  # Fixed string formatting
@@ -138,6 +139,72 @@ class ScriptGenerator:
                 elif coords == "until_not":
                     script += f"    wait.until_not(EC.{condition}((By.XPATH, '{xpath}')))\n"
             script += f"except: print('Wait element failed')\n"
+        elif action_type == "scroll":
+            script += f"driver.execute_script('window.scrollTo(0, document.body.scrollHeight)')\n"
+        elif action_type == "scroll_up":
+            script += f"driver.execute_script('window.scrollTo(0, 0)')\n"
+        elif action_type == "scroll_to":
+            script += f"element = driver.find_element_by_xpath('{xpath}')\n"
+            script += f"driver.execute_script('arguments[0].scrollIntoView(true);', element)\n"
+        elif action_type == "scroll_by":
+            script += f"driver.execute_script('window.scrollBy({x}, {y})')\n"
+        elif action_type == "hover":
+            script += f"element = driver.find_element_by_xpath('{xpath}')\n"
+            script += f"actions = ActionChains(driver)\n"
+            script += f"actions.move_to_element(element).perform()\n"
+        elif action_type == "right_click":
+            script += f"element = driver.find_element_by_xpath('{xpath}')\n"
+            script += f"actions = ActionChains(driver)\n"
+            script += f"actions.context_click(element).perform()\n"
+        elif action_type == "double_click":
+            script += f"element = driver.find_element_by_xpath('{xpath}')\n"
+            script += f"actions = ActionChains(driver)\n"
+            script += f"actions.double_click(element).perform()\n"
+        elif action_type == "drag_and_drop":
+            script += f"source = driver.find_element_by_xpath('{xpath}')\n"
+            script += f"target = driver.find_element_by_xpath('{coords}')\n"
+            script += f"actions = ActionChains(driver)\n"
+            script += f"actions.drag_and_drop(source, target).perform()\n"
+        elif action_type == "drag_and_drop_by":
+            script += f"element = driver.find_element_by_xpath('{xpath}')\n"
+            script += f"actions = ActionChains(driver)\n"
+            script += f"actions.drag_and_drop_by_offset(element, {x}, {y}).perform()\n"
+        elif action_type == "accept_alert":
+            script += f"driver.switch_to.alert.accept()\n"
+        elif action_type == "dismiss_alert":
+            script += f"driver.switch_to.alert.dismiss()\n"
+        elif action_type == "send_keys_alert":
+            script += f"driver.switch_to.alert.send_keys('{xpath}')\n"
+        elif action_type == "get_alert_text":
+            script += f"alert_text = driver.switch_to.alert.text\n"
+        elif action_type == "set_alert_text":
+            script += f"driver.execute_script(f'alert('{xpath}')')\n"
+        elif action_type == "get_attribute":
+            script += f"element = driver.find_element_by_xpath('{xpath}')\n"
+            script += f"attribute = element.get_attribute('{coords}')\n"
+        elif action_type == "get_css_value":
+            script += f"element = driver.find_element_by_xpath('{xpath}')\n"
+            script += f"css_value = element.value_of_css_property('{coords}')\n"
+        elif action_type == "get_property":
+            script += f"element = driver.find_element_by_xpath('{xpath}')\n"
+            script += f"property = element.get_property('{coords}')\n"
+        elif action_type == "get_text":
+            script += f"element = driver.find_element_by_xpath('{xpath}')\n"
+            script += f"text = element.text\n"
+        elif action_type == "get_title":
+            script += f"title = driver.title\n"
+        elif action_type == "get_url":
+            script += f"url = driver.current_url\n"
+        elif action_type == "get_page_source":
+            script += f"page_source = driver.page_source\n"
+        elif action_type == "get_cookies":
+            script += f"cookies = driver.get_cookies()\n"
+        elif action_type == "add_cookie":
+            script += f"driver.add_cookie({xpath})\n"
+        elif action_type == "delete_cookie":
+            script += f"driver.delete_cookie('{xpath}')\n"
+        elif action_type == "delete_all_cookies":  
+            script += f"driver.delete_all_cookies()\n"
         return script
 
 import tkinter as tk
@@ -232,16 +299,114 @@ class SeleniumScriptGeneratorApp:
             
             "Modes for 'wait':\n"
             "   \"visible\": Wait until the element is visible.\n"
-            "   Example: wait|//div[@id=\"element\"]|until|visible|10\n\n"
             "   \"invisible\": Wait until the element is not visible.\n"
-            "   Example: wait|//div[@id=\"popup\"]|until_not|invisible|5\n\n"
             "   \"clickable\": Wait until the element is clickable.\n"
-            "   Example: wait|//button[@class=\"submit\"]|until|clickable|8\n\n"
             "   \"presence\": Wait until the element is present in the DOM.\n"
-            "   Example: wait|//span[@class=\"message\"]|until|presence|15\n\n"
-            "   \"staleness\": Wait until the element becomes stale (is no longer attached to the DOM).\n"
-            "   Example: wait|//div[@class=\"content\"]|until_not|staleness|12\n"
+            "   \"staleness\": Wait until the element becomes stale (is no longer attached to the DOM).\n\n"
+            
+            "Additional Actions:\n"
+            
+            "6. scroll - Scroll to the bottom of the page.\n"
+            "   Format: scroll\n"
+            "   Example: scroll\n\n"
+            
+            "7. scroll_up - Scroll to the top of the page.\n"
+            "   Format: scroll_up\n"
+            "   Example: scroll_up\n\n"
+            
+            "8. scroll_to - Scroll to make an element visible.\n"
+            "   Format: scroll_to|XPath\n"
+            "   Example: scroll_to|//div[@id=\"content\"]\n\n"
+            
+            "9. scroll_by - Scroll by specific x and y offsets.\n"
+            "   Format: scroll_by|x|y\n"
+            "   Example: scroll_by|0|500\n\n"
+            
+            "10. hover - Hover over an element.\n"
+            "    Format: hover|XPath\n"
+            "    Example: hover|//button[@class=\"menu\"]\n\n"
+            
+            "11. right_click - Perform a right-click on an element.\n"
+            "    Format: right_click|XPath\n"
+            "    Example: right_click|//div[@id=\"context-menu\"]\n\n"
+            
+            "12. double_click - Perform a double-click on an element.\n"
+            "    Format: double_click|XPath\n"
+            "    Example: double_click|//button[@class=\"edit\"]\n\n"
+            
+            "13. drag_and_drop - Drag and drop an element to a target location.\n"
+            "    Format: drag_and_drop|sourceXPath|targetXPath\n"
+            "    Example: drag_and_drop|//div[@id=\"item\"]|//div[@id=\"target\"]\n\n"
+            
+            "14. drag_and_drop_by - Drag an element by a specific offset.\n"
+            "    Format: drag_and_drop_by|XPath|x|y\n"
+            "    Example: drag_and_drop_by|//div[@id=\"item\"]|100|200\n\n"
+            
+            "15. accept_alert - Accept a browser alert.\n"
+            "    Format: accept_alert\n"
+            "    Example: accept_alert\n\n"
+            
+            "16. dismiss_alert - Dismiss a browser alert.\n"
+            "    Format: dismiss_alert\n"
+            "    Example: dismiss_alert\n\n"
+            
+            "17. send_keys_alert - Send keys to an alert input box.\n"
+            "    Format: send_keys_alert|text\n"
+            "    Example: send_keys_alert|username123\n\n"
+            
+            "18. get_alert_text - Retrieve the text of an alert.\n"
+            "    Format: get_alert_text\n"
+            "    Example: get_alert_text\n\n"
+            
+            "19. set_alert_text - Create a custom alert with a message.\n"
+            "    Format: set_alert_text|text\n"
+            "    Example: set_alert_text|Hello World\n\n"
+            
+            "20. get_attribute - Get a specified attribute of an element.\n"
+            "    Format: get_attribute|XPath|attributeName\n"
+            "    Example: get_attribute|//input[@id=\"username\"]|value\n\n"
+            
+            "21. get_css_value - Retrieve the CSS value of a property for an element.\n"
+            "    Format: get_css_value|XPath|property\n"
+            "    Example: get_css_value|//div[@id=\"box\"]|color\n\n"
+            
+            "22. get_property - Retrieve a property of an element.\n"
+            "    Format: get_property|XPath|propertyName\n"
+            "    Example: get_property|//input[@id=\"checkbox\"]|checked\n\n"
+            
+            "23. get_text - Retrieve the text content of an element.\n"
+            "    Format: get_text|XPath\n"
+            "    Example: get_text|//p[@id=\"message\"]\n\n"
+            
+            "24. get_title - Retrieve the page title.\n"
+            "    Format: get_title\n"
+            "    Example: get_title\n\n"
+            
+            "25. get_url - Retrieve the current page URL.\n"
+            "    Format: get_url\n"
+            "    Example: get_url\n\n"
+            
+            "26. get_page_source - Retrieve the HTML source of the current page.\n"
+            "    Format: get_page_source\n"
+            "    Example: get_page_source\n\n"
+            
+            "27. get_cookies - Retrieve all browser cookies.\n"
+            "    Format: get_cookies\n"
+            "    Example: get_cookies\n\n"
+            
+            "28. add_cookie - Add a new browser cookie.\n"
+            "    Format: add_cookie|cookieData\n"
+            "    Example: add_cookie|{\"name\": \"session\", \"value\": \"12345\"}\n\n"
+            
+            "29. delete_cookie - Delete a specific browser cookie.\n"
+            "    Format: delete_cookie|cookieName\n"
+            "    Example: delete_cookie|session\n\n"
+            
+            "30. delete_all_cookies - Delete all browser cookies.\n"
+            "    Format: delete_all_cookies\n"
+            "    Example: delete_all_cookies\n"
         )
+
 
         def add_placeholder():
             self.generated_script.delete("1.0", tk.END)
