@@ -32,6 +32,7 @@ try:
     element.click()
 except Exception as e:
     # Fallback to coordinates if XPath click fails
+    print('Failed to find XPath. Trying coordinate click.')
     actions = ActionChains(driver)
     actions.move_by_offset(578, 167).click().perform()
     actions.move_by_offset(-578, -167).perform()
@@ -50,6 +51,7 @@ try:
     element.click()
 except Exception as e:
     # Fallback to coordinates if XPath click fails
+    print('Failed to find XPath. Trying coordinate click.')
     actions = ActionChains(driver)
     actions.move_by_offset(479, 242).click().perform()
     actions.move_by_offset(-479, -242).perform()
@@ -80,6 +82,7 @@ try:
     element.click()
 except Exception as e:
     # Fallback to coordinates if XPath click fails
+    print('Failed to find XPath. Trying coordinate click.')
     actions = ActionChains(driver)
     actions.move_by_offset(343, 291).click().perform()
     actions.move_by_offset(-343, -291).perform()
@@ -94,6 +97,7 @@ try:
     element.click()
 except Exception as e:
     # Fallback to coordinates if XPath click fails
+    print('Failed to find XPath. Trying coordinate click.')
     actions = ActionChains(driver)
     actions.move_by_offset(550, 195).click().perform()
     actions.move_by_offset(-550, -195).perform()
@@ -124,6 +128,7 @@ try:
     element.click()
 except Exception as e:
     # Fallback to coordinates if XPath click fails
+    print('Failed to find XPath. Trying coordinate click.')
     actions = ActionChains(driver)
     actions.move_by_offset(451, 340).click().perform()
     actions.move_by_offset(-451, -340).perform()
@@ -141,6 +146,7 @@ try:
     element.click()
 except Exception as e:
     # Fallback to coordinates if XPath click fails
+    print('Failed to find XPath. Trying coordinate click.')
     actions = ActionChains(driver)
     actions.move_by_offset(551, 345).click().perform()
     actions.move_by_offset(-551, -345).perform()
@@ -155,6 +161,7 @@ try:
     element.click()
 except Exception as e:
     # Fallback to coordinates if XPath click fails
+    print('Failed to find XPath. Trying coordinate click.')
     actions = ActionChains(driver)
     actions.move_by_offset(507, 408).click().perform()
     actions.move_by_offset(-507, -408).perform()
@@ -172,6 +179,7 @@ try:
     element.click()
 except Exception as e:
     # Fallback to coordinates if XPath click fails
+    print('Failed to find XPath. Trying coordinate click.')
     actions = ActionChains(driver)
     actions.move_by_offset(454, 621).click().perform()
     actions.move_by_offset(-454, -621).perform()
@@ -204,7 +212,6 @@ wait = WebDriverWait(driver, 5)
 element = wait.until(EC.presence_of_element_located((By.XPATH, 'id("confirmation")')))
 element.clear()
 element.send_keys(input_values['input_value_25'])
-time.sleep(10)
 set_viewport_size(driver, 1877, 926)
 time.sleep(2)
 try: WebDriverWait(driver, 5).until_not(EC.presence_of_element_located((By.XPATH, "//ion-spinner[@id='spinner']")))
@@ -215,6 +222,7 @@ try:
     element.click()
 except Exception as e:
     # Fallback to coordinates if XPath click fails
+    print('Failed to find XPath. Trying coordinate click.')
     actions = ActionChains(driver)
     actions.move_by_offset(390, 687).click().perform()
     actions.move_by_offset(-390, -687).perform()
@@ -232,6 +240,7 @@ try:
     element.click()
 except Exception as e:
     # Fallback to coordinates if XPath click fails
+    print('Failed to find XPath. Trying coordinate click.')
     actions = ActionChains(driver)
     actions.move_by_offset(650, 123).click().perform()
     actions.move_by_offset(-650, -123).perform()

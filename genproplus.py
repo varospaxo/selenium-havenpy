@@ -239,293 +239,200 @@ from tkinter import ttk
 import os
 import csv
 
+import tkinter as tk
+from tkinter import ttk
+
 class SeleniumScriptGeneratorApp:
     def __init__(self, root):
         self.root = root
         self.root.title("Selenium Script Generator")
+        self.root.configure(bg="#f0f0f0")  # Set background color
         
         # Configure grid weights for responsiveness
-        self.root.grid_columnconfigure(1, weight=1)  # Make column 1 expandable
-        for i in range(8):  # Configure rows 0-7
-            self.root.grid_rowconfigure(i, weight=1 if i in [3, 7] else 0)
+        for i in range(3):  # Three columns
+            self.root.grid_columnconfigure(i, weight=1)
+        for i in range(12):  # Configure rows
+            self.root.grid_rowconfigure(i, weight=1)
 
         self.script_generator = ScriptGenerator()
 
+        # Main layout components
         self._create_browser_selection()
         self._create_url_input()
-        self._create_actions_input()
         self._create_help_button()
+        self._create_actions_input()
+        self._create_prefix_suffix_actions()
         self._create_folder_name_input()
         self._create_script_name_input()
         self._create_buttons_frame()
         self._create_generated_script_output()
 
     def _create_browser_selection(self):
-        browser_label = tk.Label(self.root, text="Select a Browser:")
+        browser_label = tk.Label(self.root, text="Select a Browser:", bg="#f0f0f0", font=("Helvetica", 10))
         browser_label.grid(row=0, column=0, sticky="w", padx=10, pady=5)
 
-        self.browser_var = tk.StringVar()
-        self.browser_var.set(ScriptGenerator.DEFAULT_BROWSER)
-        browser_option = ttk.Combobox(self.root, textvariable=self.browser_var, 
-                                    values=["Chrome", "Firefox"])
-        browser_option.grid(row=0, column=1, padx=10, pady=5, sticky="ew")
+        self.browser_selection_combobox = ttk.Combobox(self.root, textvariable=tk.StringVar(), 
+                                                         values=["Chrome", "Firefox"], state="readonly")
+        self.browser_selection_combobox.set(ScriptGenerator.DEFAULT_BROWSER)
+        self.browser_selection_combobox.grid(row=0, column=1, columnspan=2, sticky="ew", padx=10, pady=5)
 
     def _create_url_input(self):
-        url_label = tk.Label(self.root, text="URL:")
+        url_label = tk.Label(self.root, text="URL:", bg="#f0f0f0", font=("Helvetica", 10))
         url_label.grid(row=1, column=0, sticky="w", padx=10, pady=5)
 
-        self.url_entry = tk.Entry(self.root)
-        self.url_entry.grid(row=1, column=1, padx=10, pady=5, sticky="ew")
-
-    def _create_actions_input(self):
-        actions_label = tk.Label(self.root, text="Actions:")
-        actions_label.grid(row=3, column=0, sticky="nw", padx=10, pady=5)
-
-        # Create a frame for the text area and scrollbar
-        self.actions_frame = tk.Frame(self.root)
-        self.actions_frame.grid(row=3, column=1, padx=10, pady=5, sticky="nsew")
-        self.actions_frame.grid_columnconfigure(0, weight=1)
-        self.actions_frame.grid_rowconfigure(0, weight=1)
-
-        # Create scrollbar and text widget
-        self.actions_scrollbar = tk.Scrollbar(self.actions_frame)
-        self.actions_text = tk.Text(self.actions_frame, height=6, wrap="word",
-                                  yscrollcommand=self.actions_scrollbar.set)
-        
-        # Configure scrollbar
-        self.actions_scrollbar.config(command=self.actions_text.yview)
-        
-        # Pack scrollbar and text widget
-        self.actions_scrollbar.pack(side="right", fill="y")
-        self.actions_text.pack(side="left", fill="both", expand=True)
+        self.url_input_entry = tk.Entry(self.root, font=("Helvetica", 10))
+        self.url_input_entry.grid(row=1, column=1, columnspan=2, sticky="ew", padx=10, pady=5)
 
     def _create_help_button(self):
-        instructions = (
-            "Instructions:\n"
-            "Use the following command formats to interact with web elements effectively. Below are the commands and their expected parameters.\nNote: Never use XPaths and inputs with single quotes ('')\n\n"
-            
-            "1. click - Perform a click action on the specified element.\n"
-            "   Format: click|XPath|coordinates(optional)|resolution(optional)\n"
-            "   Example: click|//button[@id=\"submit\"]|100,200|1920x1080\n\n"
-            
-            "2. input - Enter text into an input field.\n"
-            "   Format: input|XPath|text\n"
-            "   Example: input|//input[@name=\"username\"]|test_user\n\n"
-            
-            "3. submit - Submit a form element.\n"
-            "   Format: submit|XPath(form)\n"
-            "   Example: submit|//form[@id=\"loginForm\"]\n\n"
-            
-            "4. sleep - Pause the execution for a specified number of seconds.\n"
-            "   Format: sleep|seconds\n"
-            "   Example: sleep|5\n\n"
-            
-            "5. wait - Wait for a specific condition to be met on an element.\n"
-            "   Format: wait|XPath|until/until_not|mode|timeout\n"
-            "   Example: wait|//div[@id=\"loading\"]|until|visible|10\n\n"
-            
-            "Modes for 'wait':\n"
-            "   \"visible\": Wait until the element is visible.\n"
-            "   \"invisible\": Wait until the element is not visible.\n"
-            "   \"clickable\": Wait until the element is clickable.\n"
-            "   \"presence\": Wait until the element is present in the DOM.\n"
-            "   \"staleness\": Wait until the element becomes stale (is no longer attached to the DOM).\n"
-            "   \"selected\": Wait until the element is selected.\n"
-            "   \"deselected\": Wait until the element is deselected.\n"
-            "   \"text_to_be_present\": Wait until the specified text is present in the element.\n"
-            "   \"text_to_be_present_in_value\": Wait until the specified text is present in the element's value.\n"
-            "   \"frame_to_be_available\": Wait until the frame is available and switch to it.\n"
-            "   \"alert_is_present\": Wait until an alert is present.\n"
-            "   \"title_contains\": Wait until the title contains the specified text.\n"
-            "   \"title_is\": Wait until the title is exactly the specified text.\n"
-            "   \"url_contains\": Wait until the URL contains the specified text.\n"
-            "   \"url_matches\": Wait until the URL matches the specified pattern.\n"
-            "   \"url_to_be\": Wait until the URL is exactly the specified URL.\n"
-            "   \"url_changes\": Wait until the URL changes.\n"
-            "   \"number_of_windows_to_be\": Wait until the number of open windows matches the specified count.\n"
-            "   \"new_window_is_opened\": Wait until a new window is opened.\n"
-            "   \"element_located_to_be_selected\": Wait until the located element is selected.\n"
-            "   \"element_selection_state_to_be\": Wait until the element's selection state matches the specified state.\n"
-            "   \"element_located_selection_state_to_be\": Wait until the located element's selection state matches the specified state.\n\n"
-
-            
-            "Additional Actions:\n"
-            
-            "6. scroll - Scroll to the bottom of the page.\n"
-            "   Format: scroll\n"
-            "   Example: scroll\n\n"
-            
-            "7. scroll_up - Scroll to the top of the page.\n"
-            "   Format: scroll_up\n"
-            "   Example: scroll_up\n\n"
-            
-            "8. scroll_to - Scroll to make an element visible.\n"
-            "   Format: scroll_to|XPath\n"
-            "   Example: scroll_to|//div[@id=\"content\"]\n\n"
-            
-            "9. scroll_by - Scroll by specific x and y offsets.\n"
-            "   Format: scroll_by|x|y\n"
-            "   Example: scroll_by|0|500\n\n"
-            
-            "10. hover - Hover over an element.\n"
-            "    Format: hover|XPath\n"
-            "    Example: hover|//button[@class=\"menu\"]\n\n"
-            
-            "11. right_click - Perform a right-click on an element.\n"
-            "    Format: right_click|XPath\n"
-            "    Example: right_click|//div[@id=\"context-menu\"]\n\n"
-            
-            "12. double_click - Perform a double-click on an element.\n"
-            "    Format: double_click|XPath\n"
-            "    Example: double_click|//button[@class=\"edit\"]\n\n"
-            
-            "13. drag_and_drop - Drag and drop an element to a target location.\n"
-            "    Format: drag_and_drop|sourceXPath|targetXPath\n"
-            "    Example: drag_and_drop|//div[@id=\"item\"]|//div[@id=\"target\"]\n\n"
-            
-            "14. drag_and_drop_by - Drag an element by a specific offset.\n"
-            "    Format: drag_and_drop_by|XPath|x|y\n"
-            "    Example: drag_and_drop_by|//div[@id=\"item\"]|100|200\n\n"
-            
-            "15. accept_alert - Accept a browser alert.\n"
-            "    Format: accept_alert\n"
-            "    Example: accept_alert\n\n"
-            
-            "16. dismiss_alert - Dismiss a browser alert.\n"
-            "    Format: dismiss_alert\n"
-            "    Example: dismiss_alert\n\n"
-            
-            "17. send_keys_alert - Send keys to an alert input box.\n"
-            "    Format: send_keys_alert|text\n"
-            "    Example: send_keys_alert|username123\n\n"
-            
-            "18. get_alert_text - Retrieve the text of an alert.\n"
-            "    Format: get_alert_text\n"
-            "    Example: get_alert_text\n\n"
-            
-            "19. set_alert_text - Create a custom alert with a message.\n"
-            "    Format: set_alert_text|text\n"
-            "    Example: set_alert_text|Hello World\n\n"
-            
-            "20. get_attribute - Get a specified attribute of an element.\n"
-            "    Format: get_attribute|XPath|attributeName\n"
-            "    Example: get_attribute|//input[@id=\"username\"]|value\n\n"
-            
-            "21. get_css_value - Retrieve the CSS value of a property for an element.\n"
-            "    Format: get_css_value|XPath|property\n"
-            "    Example: get_css_value|//div[@id=\"box\"]|color\n\n"
-            
-            "22. get_property - Retrieve a property of an element.\n"
-            "    Format: get_property|XPath|propertyName\n"
-            "    Example: get_property|//input[@id=\"checkbox\"]|checked\n\n"
-            
-            "23. get_text - Retrieve the text content of an element.\n"
-            "    Format: get_text|XPath\n"
-            "    Example: get_text|//p[@id=\"message\"]\n\n"
-            
-            "24. get_title - Retrieve the page title.\n"
-            "    Format: get_title\n"
-            "    Example: get_title\n\n"
-            
-            "25. get_url - Retrieve the current page URL.\n"
-            "    Format: get_url\n"
-            "    Example: get_url\n\n"
-            
-            "26. get_page_source - Retrieve the HTML source of the current page.\n"
-            "    Format: get_page_source\n"
-            "    Example: get_page_source\n\n"
-            
-            "27. get_cookies - Retrieve all browser cookies.\n"
-            "    Format: get_cookies\n"
-            "    Example: get_cookies\n\n"
-            
-            "28. add_cookie - Add a new browser cookie.\n"
-            "    Format: add_cookie|cookieData\n"
-            "    Example: add_cookie|{\"name\": \"session\", \"value\": \"12345\"}\n\n"
-            
-            "29. delete_cookie - Delete a specific browser cookie.\n"
-            "    Format: delete_cookie|cookieName\n"
-            "    Example: delete_cookie|session\n\n"
-            
-            "30. delete_all_cookies - Delete all browser cookies.\n"
-            "    Format: delete_all_cookies\n"
-            "    Example: delete_all_cookies\n"
-        )
-
+        try:
+            with open('instructions.txt', 'r') as file:
+                instructions = file.read()
+        except FileNotFoundError:
+            instructions = "Instructions file not found. Please ensure 'instructions.txt' exists in the same directory."
 
         def add_placeholder():
             self.generated_script.delete("1.0", tk.END)
             self.generated_script.insert("1.0", instructions)
+            self.url_input_entry.delete(0, tk.END)
+            self.url_input_entry.insert(0, "Insert URL here.")
+            self.actions_text.delete("1.0", tk.END)
+            self.actions_text.insert("1.0", "Insert Actions here.\n")
+            self.prefix_actions_text.delete("1.0", tk.END)
+            self.prefix_actions_text.insert("1.0", "Insert Prefix Actions here.\n")
+            self.suffix_actions_text.delete("1.0", tk.END)
+            self.suffix_actions_text.insert("1.0", "Insert Suffix Actions here.\n")
+            self.folder_input_entry.delete(0, tk.END)
+            self.folder_input_entry.insert(0, "Folder Name")
+            self.script_input_entry.delete(0, tk.END)
+            self.script_input_entry.insert(0, "Script Name")
 
-        help_button = tk.Button(self.root, text="Help", command=add_placeholder)
-        help_button.grid(row=2, column=1, padx=10, pady=5, sticky="e")
+        help_button = tk.Button(self.root, text="Help", command=add_placeholder, bg="#4CAF50", fg="white", font=("Helvetica", 10, "bold"))
+        help_button.grid(row=1, column=2, padx=10, pady=5, sticky="e")
+
+    def _create_actions_input(self):
+        actions_label = tk.Label(self.root, text="Main Actions:", bg="#f0f0f0", font=("Helvetica", 10))
+        actions_label.grid(row=2, column=0, sticky="nw", padx=10, pady=5)
+
+        self.actions_frame = tk.Frame(self.root)
+        self.actions_frame.grid(row=2, column=1, columnspan=2, sticky="nsew", padx=10, pady=5)
+
+        self.actions_scrollbar = tk.Scrollbar(self.actions_frame)
+        self.actions_text = tk.Text(self.actions_frame, height=6, wrap="word", yscrollcommand=self.actions_scrollbar.set, font=("Helvetica", 10))
+        self.actions_scrollbar.config(command=self.actions_text.yview)
+        
+        self.actions_scrollbar.pack(side="right", fill="y")
+        self.actions_text.pack(side="left", fill="both", expand=True)
+
+    def _create_prefix_suffix_actions(self):
+        prefix_actions_label = tk.Label(self.root, text="Prefix Actions:", bg="#f0f0f0", font=("Helvetica", 10))
+        prefix_actions_label.grid(row=3, column=0, sticky="nw", padx=10, pady=5)
+
+        self.prefix_actions_frame = tk.Frame(self.root)
+        self.prefix_actions_frame.grid(row=3, column=1, sticky="nsew", padx=10, pady=5)
+
+        self.prefix_actions_scrollbar = tk.Scrollbar(self.prefix_actions_frame)
+        self.prefix_actions_text = tk.Text(self.prefix_actions_frame, height=4, wrap="word", 
+                                           yscrollcommand=self.prefix_actions_scrollbar.set, font=("Helvetica", 10))
+        self.prefix_actions_scrollbar.config(command=self.prefix_actions_text.yview)
+        
+        self.prefix_actions_scrollbar.pack(side="right", fill="y")
+        self.prefix_actions_text.pack(side="left", fill="both", expand=True)
+
+        suffix_actions_label = tk.Label(self.root, text="Suffix Actions:", bg="#f0f0f0", font=("Helvetica", 10))
+        suffix_actions_label.grid(row=4, column=0, sticky="nw", padx=10, pady=5)
+
+        self.suffix_actions_frame = tk.Frame(self.root)
+        self.suffix_actions_frame.grid(row=4, column=1, sticky="nsew", padx=10, pady=5)
+
+        self.suffix_actions_scrollbar = tk.Scrollbar(self.suffix_actions_frame)
+        self.suffix_actions_text = tk.Text(self.suffix_actions_frame, height=4, wrap="word",
+                                           yscrollcommand=self.suffix_actions_scrollbar.set, font=("Helvetica", 10))
+        self.suffix_actions_scrollbar.config(command=self.suffix_actions_text.yview)
+        
+        self.suffix_actions_scrollbar.pack(side="right", fill="y")
+        self.suffix_actions_text.pack(side="left", fill="both", expand=True)
 
     def _create_folder_name_input(self):
-        folder_label = tk.Label(self.root, text="Folder Name:")
-        folder_label.grid(row=4, column=0, sticky="w", padx=10, pady=5)
+        folder_label = tk.Label(self.root, text="Folder Name:", bg="#f0f0f0", font=("Helvetica", 10))
+        folder_label.grid(row=5, column=0, sticky="w", padx=10, pady=5)
 
-        self.folder_entry = tk.Entry(self.root)
-        self.folder_entry.grid(row=4, column=1, padx=10, pady=5, sticky="ew")
+        self.folder_input_entry = tk.Entry(self.root, font=("Helvetica", 10))
+        self.folder_input_entry.grid(row=5, column=1, columnspan=2, sticky="ew", padx=10, pady=5)
 
     def _create_script_name_input(self):
-        script_label = tk.Label(self.root, text="Script Name:")
-        script_label.grid(row=5, column=0, sticky="w", padx=10, pady=5)
+        script_label = tk.Label(self.root, text="Script Name:", bg="#f0f0f0", font=("Helvetica", 10))
+        script_label.grid(row=6, column=0, sticky="w", padx=10, pady=5)
 
-        self.script_entry = tk.Entry(self.root)
-        self.script_entry.grid(row=5, column=1, padx=10, pady=5, sticky="ew")
+        self.script_input_entry = tk.Entry(self.root, font=("Helvetica", 10))
+        self.script_input_entry.grid(row=6, column=1, columnspan=2, sticky="ew", padx=10, pady=5)
 
     def _create_buttons_frame(self):
-        # Create a frame for the buttons
-        buttons_frame = tk.Frame(self.root)
-        buttons_frame.grid(row=6, column=0, columnspan=2, padx=10, pady=5, sticky="ew")
+        buttons_frame = tk.Frame(self.root, bg="#f0f0f0")
+        buttons_frame.grid(row=7, column=0, columnspan=3, padx=10, pady=10, sticky="ew")
         buttons_frame.grid_columnconfigure(0, weight=1)
         buttons_frame.grid_columnconfigure(1, weight=1)
 
-        # Generate button
-        self.generate_button = tk.Button(buttons_frame, text="Generate Script",
-                                       command=self.generate_and_save_script)
-        self.generate_button.grid(row=0, column=0, padx=5, sticky="ew")
+        self.generate_button = tk.Button(buttons_frame, text="Generate Script", command=self.generate_and_save_script, bg="#4CAF50", fg="white", font=("Helvetica", 10, "bold"))
+        self.generate_button.grid(row=0, column=0, padx=5, pady=5, sticky="ew")
 
-        # Reset button
-        self.reset_button = tk.Button(buttons_frame, text="Reset",
-                                    command=self._reset_fields)
-        self.reset_button.grid(row=0, column=1, padx=5, sticky="ew")
+        self.reset_button = tk.Button(buttons_frame, text="Reset", command=self._reset_fields, bg="#f44336", fg="white", font=("Helvetica", 10, "bold"))
+        self.reset_button.grid(row=0, column=1, padx=5, pady=5, sticky="ew")
 
     def _create_generated_script_output(self):
-        output_label = tk.Label(self.root, text="Generated Script:")
-        output_label.grid(row=7, column=0, sticky="nw", padx=10, pady=5)
+        output_label = tk.Label(self.root, text="Generated Script:", bg="#f0f0f0", font=("Helvetica", 10))
+        output_label.grid(row=8, column=0, sticky="nw", padx=10, pady=5)
 
-        # Create a frame for the output text area and scrollbar
         self.output_frame = tk.Frame(self.root)
-        self.output_frame.grid(row=7, column=1, padx=10, pady=5, sticky="nsew")
-        self.output_frame.grid_columnconfigure(0, weight=1)
-        self.output_frame.grid_rowconfigure(0, weight=1)
+        self.output_frame.grid(row=8, column=0, columnspan=3, padx=10, pady=5, sticky="nsew")
 
-        # Create scrollbar and text widget
         self.output_scrollbar = tk.Scrollbar(self.output_frame)
-        self.generated_script = tk.Text(self.output_frame, height=6, wrap="word",
-                                      yscrollcommand=self.output_scrollbar.set)
-        
-        # Configure scrollbar
+        self.generated_script = tk.Text(self.output_frame, height=10, wrap="word", 
+                                        yscrollcommand=self.output_scrollbar.set, font=("Helvetica", 10))
         self.output_scrollbar.config(command=self.generated_script.yview)
-        
-        # Pack scrollbar and text widget
+
         self.output_scrollbar.pack(side="right", fill="y")
         self.generated_script.pack(side="left", fill="both", expand=True)
 
     def _reset_fields(self):
         """Reset all input fields to their default state"""
-        self.browser_var.set(ScriptGenerator.DEFAULT_BROWSER)
-        self.url_entry.delete(0, tk.END)
+        self.browser_selection_combobox.set(ScriptGenerator.DEFAULT_BROWSER)
+        self.url_input_entry.delete(0, tk.END)
         self.actions_text.delete("1.0", tk.END)
-        self.folder_entry.delete(0, tk.END)
-        self.script_entry.delete(0, tk.END)
+        self.prefix_actions_text.delete("1.0", tk.END)
+        self.suffix_actions_text.delete("1.0", tk.END)
+        self.folder_input_entry.delete(0, tk.END)
+        self.script_input_entry.delete(0, tk.END)
         self.generated_script.delete("1.0", tk.END)
 
+    # def generate_and_save_script(self):
+    #     selected_browser = self.browser_var.get()
+    #     url = self.url_entry.get()
+    #     actions_text = self.actions_text.get("1.0", tk.END).strip()
+    #     print(actions_text)
+    #     action_lines = [line.split('|') for line in actions_text.split('\n') if line.strip()]
+    #     actions = []
+    #     input_values = []
+
     def generate_and_save_script(self):
-        selected_browser = self.browser_var.get()
-        url = self.url_entry.get()
+        selected_browser = self.browser_selection_combobox.get()
+        url = self.url_input_entry.get()
         actions_text = self.actions_text.get("1.0", tk.END).strip()
+
+        # Variables for text to add
+        text_before = f'{self.prefix_actions_text.get("1.0", tk.END).strip()}'
+        text_after = f'{self.suffix_actions_text.get("1.0", tk.END).strip()}'
+
+        # Process actions_text to add the lines before and after each action
+        modified_actions_text = []
+        for line in actions_text.split('\n'):
+            if line.strip():  # Ignore empty lines
+                modified_line = f"{text_before}\n{line}\n{text_after}"
+                modified_actions_text.append(modified_line)
+
+        # Reconstruct actions_text with the modified lines
+        actions_text = '\n'.join(modified_actions_text)
+        # print("Modified Actions Text:\n", actions_text)
+
         action_lines = [line.split('|') for line in actions_text.split('\n') if line.strip()]
         actions = []
         input_values = []
@@ -541,11 +448,11 @@ class SeleniumScriptGeneratorApp:
                 input_values.append((f"input_value_{i}", coords))
         
         collection = "Generated"
-        if self.folder_entry.get() and self.script_entry.get():
-            folder_name = self.folder_entry.get()
-            script_name = self.script_entry.get()+".py"
-            csv_name = self.script_entry.get()+".csv"
-            action_list_name = self.script_entry.get()+".txt"
+        if self.folder_input_entry.get() and self.script_input_entry.get():
+            folder_name = self.folder_input_entry.get()
+            script_name = self.script_input_entry.get()+".py"
+            csv_name = self.script_input_entry.get()+".csv"
+            action_list_name = self.script_input_entry.get()+".txt"
         else:
             folder_name = "GeneratedScript"
             script_name = "script.py"
@@ -585,5 +492,5 @@ class SeleniumScriptGeneratorApp:
 if __name__ == "__main__":
     root = tk.Tk()
     app = SeleniumScriptGeneratorApp(root)
-    root.geometry("600x700")  # Set initial size
+    root.geometry("800x700")  # Set initial size
     root.mainloop()
