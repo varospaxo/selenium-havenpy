@@ -1,30 +1,30 @@
 click|//button[@id="submit"]|100,200|1920x1080|
-input|//input[@name="username"]|test_user||
-submit|//form[@id="loginForm"]|||
-sleep|5|||
+input|//input[@name="username"]|test_user
+submit|//form[@id="loginForm"]|
+sleep|5|
 wait|//div[@id="loading"]|until|visible|10
-scroll||||
-scroll_up||||
-scroll_to|//div[@id="content"]|||
-scroll_by|0|500||
-hover|//button[@class="menu"]|||
-right_click|//div[@id="context-menu"]|||
-double_click|//button[@class="edit"]|||
-drag_and_drop|//div[@id="item"]|//div[@id="target"]||
+scroll
+scroll_up
+scroll_to|//div[@id="content"]|
+scroll_by|0|500
+hover|//button[@class="menu"]|
+right_click|//div[@id="context-menu"]|
+double_click|//button[@class="edit"]|
+drag_and_drop|//div[@id="item"]|//div[@id="target"]
 drag_and_drop_by|//div[@id="item"]|100|200|
-accept_alert||||
-dismiss_alert||||
-send_keys_alert|username123|||
-get_alert_text||||
-set_alert_text|Hello World|||
-get_attribute|//input[@id="username"]|value||
-get_css_value|//div[@id="box"]|color||
-get_property|//input[@id="checkbox"]|checked||
-get_text|//p[@id="message"]|||
-get_title||||
-get_url||||
-get_page_source||||
-get_cookies||||
-add_cookie|{"name": "session", "value": "12345"}|||
-delete_cookie|session|||
-delete_all_cookies||||
+accept_alert
+dismiss_alert
+send_keys_alert|username123|
+get_alert_text
+set_alert_text|Hello World|
+get_attribute|//input[@id="username"]|value
+get_css_value|//div[@id="box"]|color
+get_property|//input[@id="checkbox"]|checked
+get_text|//p[@id="message"]|
+get_title
+get_url
+get_page_source
+get_cookies
+add_cookie|{"name": "session", "value": "12345"}|
+delete_cookie|session|
+delete_all_cookies

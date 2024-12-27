@@ -1,3 +1,4 @@
 Generated/*
 !Generated/GeneratedScript/
 !Generated/test/
+__pycache__/

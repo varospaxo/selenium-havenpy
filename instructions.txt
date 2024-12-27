@@ -10,18 +10,22 @@ Suffix Actions - Add actions to perform after every main action.
 Folder Name - Add folder name to save the script to.
 Script Name - Add script name.
 
-
 Use the following command formats to interact with web elements effectively. Below are the commands and their expected parameters.
 
 Note: Never use XPaths and inputs with single quotes ('')
+
+0. comment - Add a comment into the script
+   Format: #/comment|Comment Text
+   Example: #/comment|Hello World
 
 1. click - Perform a click action on the specified element.
    Format: click|XPath|coordinates(optional)|resolution(optional)
    Example: click|//button[@id=submit]|100,200|1920x1080
 
-2. input - Enter text into an input field.
-   Format: input|XPath|text
-   Example: input|//input[@name=username]|test_user
+2. input - Enter Text into an Input Field
+   Format: input|XPath|text|type|encoding/None
+   Examples: Single line - input|//input[@name=username]|test_user|text|None
+             Multi line (Base64 encoded)- input|//textarea[@id=description]|U29tZSBtdWx0aS1saW5lIHRleHQ=|textarea|encoded
 
 3. submit - Submit a form element.
    Format: submit|XPath(form)

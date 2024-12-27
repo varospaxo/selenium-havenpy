@@ -13,6 +13,7 @@ input 1 = xpath
 input 2 = coords
 input 3 = viewport
 input 4 = timeout
+input0|input1|input2|input3|input4
 """
 
 
@@ -104,7 +105,6 @@ class ScriptGenerator:
                 "    # Fallback to coordinates if XPath click fails\n"
             )
 
-
             if x and y:
                 script += (
                     f"    print('Failed to find XPath. Trying coordinate click.')\n" 
@@ -115,12 +115,24 @@ class ScriptGenerator:
             script += "    time.sleep(1)\n"
             
         elif action_type in ["type", "input"]:
-            script += (
-                f"wait = WebDriverWait(driver, {wait})\n"
-                f"element = wait.until(EC.presence_of_element_located((By.XPATH, '{xpath}')))\n"
-                f"element.clear()\n"
-                f"element.send_keys(input_values['{variable_name}'])\n"
-            )
+            if timeout == "encoded":
+                # Multi-line input
+                script += (
+                    f"wait = WebDriverWait(driver, {wait})\n"
+                    f"element = wait.until(EC.presence_of_element_located((By.XPATH, '{xpath}')))\n"
+                    f"element.clear()\n"
+                    f"decoded_value = base64.b64decode(input_values['{variable_name}']).decode('utf-8')\n"
+                    f"element.send_keys(decoded_value)\n"
+                )
+            else:
+                # Single-line input
+                script += (
+                    f"wait = WebDriverWait(driver, {wait})\n"
+                    f"element = wait.until(EC.presence_of_element_located((By.XPATH, '{xpath}')))\n"
+                    f"element.clear()\n"
+                    f"element.send_keys(input_values['{variable_name}'])\n"
+                )
+
         elif action_type == "submit":
             script += (
                 f"wait = WebDriverWait(driver, {wait})\n"
