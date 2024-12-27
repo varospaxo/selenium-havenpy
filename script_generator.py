@@ -1,3 +1,7 @@
+import base64
+import json
+import re
+
 # script_generator.py
 class ScriptGenerator:
     DEFAULT_BROWSER = "Chrome"
@@ -6,6 +10,8 @@ class ScriptGenerator:
         return (
             "import time\n"
             "import csv\n"
+            "import requests\n"
+            "import json\n"
             "from selenium import webdriver\n"
             "from selenium.webdriver.common.by import By\n"
             "from selenium.webdriver.support.ui import WebDriverWait\n"
@@ -53,6 +59,11 @@ class ScriptGenerator:
         action_type, xpath, coords, viewport, timeout = action
             
         variable_name = f"input_value_{index}"
+        action_type = action_type.replace("'", '"')
+        xpath = xpath.replace("'", '"')
+        coords = coords.replace("'", '"')
+        viewport = viewport.replace("'", '"')
+        timeout = timeout.replace("'", '"')
         
         script = ""
         # Add viewport resize if dimensions are provided
@@ -165,6 +176,48 @@ class ScriptGenerator:
                 elif coords == "until_not":
                     script += f"    wait.until_not(EC.{condition}((By.XPATH, '{xpath}')))\n"
             script += f"except: print('Wait element failed')\n"
+        
+        elif action_type == "request":
+            curl_command = base64.b64decode(xpath).decode('utf-8')
+
+                # Extract the HTTP method (default to GET)
+            method_match = re.search(r"-X\s+(\w+)", curl_command)
+            method = method_match.group(1) if method_match else "GET"
+
+            # Override method if --data or --form is present and method is not explicitly defined
+            if method == "GET" and ("--data" in curl_command or "--form" in curl_command):
+                method = "POST"
+
+            # Extract the URL
+            url_match = re.search(r"curl --location '(.*?)'", curl_command)
+            url = url_match.group(1) if url_match else None
+
+            # Extract headers
+            headers = {}
+            for header_match in re.finditer(r"--header '(.*?): (.*?)'", curl_command):
+                headers[header_match.group(1)] = header_match.group(2)
+
+            # Extract payload
+            payload_match = re.search(r"--data '(.*?)'", curl_command, re.DOTALL)
+            payload = payload_match.group(1) if payload_match else None
+
+            # Format payload as JSON string if it exists
+            if payload:
+                try:
+                    payload = json.dumps(json.loads(payload), indent=2)
+                except json.JSONDecodeError:
+                    print("Payload is not valid JSON, skipping payload.")
+                    payload = f''
+
+            # Generate Python code
+            script +=(
+            f"url = '{url}'\n"
+            f"method = '{method}'\n"
+            f"payload = json.dumps({payload})\n"
+            f"headers = {json.dumps(headers, indent=2)}\n"
+            f"response = requests.request(method, url, headers=headers, data=payload)\n"
+            f"print(response.text)\n"
+            )
         elif action_type == "scroll":
             script += f"driver.execute_script('window.scrollTo(0, document.body.scrollHeight)')\n"
         elif action_type == "scroll_up":
