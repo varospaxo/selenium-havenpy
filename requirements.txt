@@ -2,3 +2,4 @@ tkinter
 base64
 csv
 selenium
+pyperclip

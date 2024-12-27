@@ -122,7 +122,7 @@ class ScriptGenerator:
                 f"element = wait.until(EC.element_to_be_clickable((By.XPATH, '{xpath}')))\n"
                 f"element.submit()\n"
             )
-        elif action_type == "#" or "comment":
+        elif action_type == "#" or action_type == "comment" or action_type == "":
             script += (
                 f"# {xpath}\n"
             )

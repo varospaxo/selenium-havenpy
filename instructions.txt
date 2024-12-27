@@ -15,7 +15,7 @@ Use the following command formats to interact with web elements effectively. Bel
 Note: Never use XPaths and inputs with single quotes ('')
 
 0. comment - Add a comment into the script
-   Format: #/comment|Comment Text
+   Format: <blank>/#/comment|Comment Text
    Example: #/comment|Hello World
 
 1. click - Perform a click action on the specified element.

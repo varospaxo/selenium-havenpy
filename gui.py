@@ -11,12 +11,14 @@ class SeleniumScriptGeneratorApp:
         self.root.title("Selenium Script Generator")
         self.root.configure(bg="#f0f0f0")
         
-        # Configure grid weights for responsiveness
-        for i in range(3):
-            self.root.grid_columnconfigure(i, weight=1)
-        for i in range(12):
-            self.root.grid_rowconfigure(i, weight=1)
-
+        # Main container frame
+        self.main_frame = tk.Frame(self.root, bg="#f0f0f0")
+        self.main_frame.pack(fill="both", expand=True, padx=10, pady=10)
+        
+        # Configure grid weights for main frame
+        self.main_frame.grid_columnconfigure(1, weight=1)  # Make middle column expandable
+        self.main_frame.grid_columnconfigure(2, weight=0)  # Keep right column fixed
+        
         self.script_generator = ScriptGenerator()
 
         # Initialize UI components
@@ -31,20 +33,20 @@ class SeleniumScriptGeneratorApp:
         self._create_generated_script_output()
 
     def _create_browser_selection(self):
-        browser_label = tk.Label(self.root, text="Select a Browser:", bg="#f0f0f0", font=("Helvetica", 10))
-        browser_label.grid(row=0, column=0, sticky="w", padx=10, pady=5)
+        browser_label = tk.Label(self.main_frame, text="Select a Browser:", bg="#f0f0f0", font=("Helvetica", 10))
+        browser_label.grid(row=0, column=0, sticky="w", pady=5)
 
-        self.browser_selection_combobox = ttk.Combobox(self.root, textvariable=tk.StringVar(), 
-                                                         values=["Chrome", "Firefox"], state="readonly")
+        self.browser_selection_combobox = ttk.Combobox(self.main_frame, textvariable=tk.StringVar(), 
+                                                     values=["Chrome", "Firefox"], state="readonly")
         self.browser_selection_combobox.set(ScriptGenerator.DEFAULT_BROWSER)
-        self.browser_selection_combobox.grid(row=0, column=1, columnspan=2, sticky="ew", padx=10, pady=5)
+        self.browser_selection_combobox.grid(row=0, column=1, columnspan=2, sticky="ew", pady=5)
 
     def _create_url_input(self):
-        url_label = tk.Label(self.root, text="URL:", bg="#f0f0f0", font=("Helvetica", 10))
-        url_label.grid(row=1, column=0, sticky="w", padx=10, pady=5)
+        url_label = tk.Label(self.main_frame, text="URL:", bg="#f0f0f0", font=("Helvetica", 10))
+        url_label.grid(row=1, column=0, sticky="w", pady=5)
 
-        self.url_input_entry = tk.Entry(self.root, font=("Helvetica", 10))
-        self.url_input_entry.grid(row=1, column=1, columnspan=2, sticky="ew", padx=10, pady=5)
+        self.url_input_entry = tk.Entry(self.main_frame, font=("Helvetica", 10))
+        self.url_input_entry.grid(row=1, column=1, sticky="ew", pady=5)
 
     def _create_help_button(self):
         try:
@@ -69,92 +71,130 @@ class SeleniumScriptGeneratorApp:
             self.script_input_entry.delete(0, tk.END)
             self.script_input_entry.insert(0, "Script Name")
 
-        help_button = tk.Button(self.root, text="Help", command=add_placeholder, bg="#4CAF50", fg="white", font=("Helvetica", 10, "bold"))
-        help_button.grid(row=1, column=2, padx=10, pady=5, sticky="e")
+        help_button = tk.Button(self.main_frame, text="Help", command=add_placeholder, 
+                              bg="#4CAF50", fg="white", font=("Helvetica", 10, "bold"))
+        help_button.grid(row=1, column=2, pady=5, padx=(5, 0))
 
     def _create_actions_input(self):
-        actions_label = tk.Label(self.root, text="Main Actions:", bg="#f0f0f0", font=("Helvetica", 10))
-        actions_label.grid(row=2, column=0, sticky="nw", padx=10, pady=5)
+        actions_label = tk.Label(self.main_frame, text="Main Actions:", bg="#f0f0f0", font=("Helvetica", 10))
+        actions_label.grid(row=2, column=0, sticky="nw", pady=5)
 
-        self.actions_frame = tk.Frame(self.root)
-        self.actions_frame.grid(row=2, column=1, columnspan=2, sticky="nsew", padx=10, pady=5)
+        # Frame for actions with proper weight configuration
+        self.actions_frame = tk.Frame(self.main_frame)
+        self.actions_frame.grid(row=2, column=1, columnspan=2, sticky="nsew", pady=5)
+        self.actions_frame.grid_columnconfigure(0, weight=1)
+        self.actions_frame.grid_rowconfigure(0, weight=1)
 
-        self.actions_scrollbar = tk.Scrollbar(self.actions_frame)
-        self.actions_text = tk.Text(self.actions_frame, height=6, wrap="word", yscrollcommand=self.actions_scrollbar.set, font=("Helvetica", 10))
-        self.actions_scrollbar.config(command=self.actions_text.yview)
-        
-        self.actions_scrollbar.pack(side="right", fill="y")
-        self.actions_text.pack(side="left", fill="both", expand=True)
+        # Create text widget and scrollbar with increased height
+        self.actions_text = tk.Text(self.actions_frame, height=12, wrap="none", font=("Helvetica", 10))  # Increased height from 6 to 12
+        self.actions_h_scrollbar = tk.Scrollbar(self.actions_frame, orient="horizontal", command=self.actions_text.xview)
+        self.actions_v_scrollbar = tk.Scrollbar(self.actions_frame, orient="vertical", command=self.actions_text.yview)
+        self.actions_text.configure(xscrollcommand=self.actions_h_scrollbar.set, 
+                                  yscrollcommand=self.actions_v_scrollbar.set)
+
+        # Grid layout for text widget and scrollbars
+        self.actions_text.grid(row=0, column=0, sticky="nsew")
+        self.actions_h_scrollbar.grid(row=1, column=0, sticky="ew")
+        self.actions_v_scrollbar.grid(row=0, column=1, sticky="ns")
+
+        # Give more weight to the actions row
+        self.main_frame.grid_rowconfigure(2, weight=2)  # Increased weight for actions row
 
     def _create_prefix_suffix_actions(self):
-        prefix_actions_label = tk.Label(self.root, text="Prefix Actions:", bg="#f0f0f0", font=("Helvetica", 10))
-        prefix_actions_label.grid(row=3, column=0, sticky="nw", padx=10, pady=5)
+        # Similar pattern for prefix actions
+        prefix_actions_label = tk.Label(self.main_frame, text="Prefix Actions:", bg="#f0f0f0", font=("Helvetica", 10))
+        prefix_actions_label.grid(row=3, column=0, sticky="nw", pady=5)
 
-        self.prefix_actions_frame = tk.Frame(self.root)
-        self.prefix_actions_frame.grid(row=3, column=1, sticky="nsew", padx=10, pady=5)
+        self.prefix_actions_frame = tk.Frame(self.main_frame)
+        self.prefix_actions_frame.grid(row=3, column=1, columnspan=2, sticky="nsew", pady=5)
+        self.prefix_actions_frame.grid_columnconfigure(0, weight=1)
+        self.prefix_actions_frame.grid_rowconfigure(0, weight=1)
 
-        self.prefix_actions_scrollbar = tk.Scrollbar(self.prefix_actions_frame)
-        self.prefix_actions_text = tk.Text(self.prefix_actions_frame, height=4, wrap="word", 
-                                           yscrollcommand=self.prefix_actions_scrollbar.set, font=("Helvetica", 10))
-        self.prefix_actions_scrollbar.config(command=self.prefix_actions_text.yview)
-        
-        self.prefix_actions_scrollbar.pack(side="right", fill="y")
-        self.prefix_actions_text.pack(side="left", fill="both", expand=True)
+        self.prefix_actions_text = tk.Text(self.prefix_actions_frame, height=4, wrap="none", font=("Helvetica", 10))
+        self.prefix_h_scrollbar = tk.Scrollbar(self.prefix_actions_frame, orient="horizontal", 
+                                             command=self.prefix_actions_text.xview)
+        self.prefix_v_scrollbar = tk.Scrollbar(self.prefix_actions_frame, orient="vertical", 
+                                             command=self.prefix_actions_text.yview)
+        self.prefix_actions_text.configure(xscrollcommand=self.prefix_h_scrollbar.set, 
+                                        yscrollcommand=self.prefix_v_scrollbar.set)
 
-        suffix_actions_label = tk.Label(self.root, text="Suffix Actions:", bg="#f0f0f0", font=("Helvetica", 10))
-        suffix_actions_label.grid(row=4, column=0, sticky="nw", padx=10, pady=5)
+        self.prefix_actions_text.grid(row=0, column=0, sticky="nsew")
+        self.prefix_h_scrollbar.grid(row=1, column=0, sticky="ew")
+        self.prefix_v_scrollbar.grid(row=0, column=1, sticky="ns")
 
-        self.suffix_actions_frame = tk.Frame(self.root)
-        self.suffix_actions_frame.grid(row=4, column=1, sticky="nsew", padx=10, pady=5)
+        # Similar pattern for suffix actions
+        suffix_actions_label = tk.Label(self.main_frame, text="Suffix Actions:", bg="#f0f0f0", font=("Helvetica", 10))
+        suffix_actions_label.grid(row=4, column=0, sticky="nw", pady=5)
 
-        self.suffix_actions_scrollbar = tk.Scrollbar(self.suffix_actions_frame)
-        self.suffix_actions_text = tk.Text(self.suffix_actions_frame, height=4, wrap="word",
-                                           yscrollcommand=self.suffix_actions_scrollbar.set, font=("Helvetica", 10))
-        self.suffix_actions_scrollbar.config(command=self.suffix_actions_text.yview)
-        
-        self.suffix_actions_scrollbar.pack(side="right", fill="y")
-        self.suffix_actions_text.pack(side="left", fill="both", expand=True)
+        self.suffix_actions_frame = tk.Frame(self.main_frame)
+        self.suffix_actions_frame.grid(row=4, column=1, columnspan=2, sticky="nsew", pady=5)
+        self.suffix_actions_frame.grid_columnconfigure(0, weight=1)
+        self.suffix_actions_frame.grid_rowconfigure(0, weight=1)
+
+        self.suffix_actions_text = tk.Text(self.suffix_actions_frame, height=4, wrap="none", font=("Helvetica", 10))
+        self.suffix_h_scrollbar = tk.Scrollbar(self.suffix_actions_frame, orient="horizontal", 
+                                             command=self.suffix_actions_text.xview)
+        self.suffix_v_scrollbar = tk.Scrollbar(self.suffix_actions_frame, orient="vertical", 
+                                             command=self.suffix_actions_text.yview)
+        self.suffix_actions_text.configure(xscrollcommand=self.suffix_h_scrollbar.set, 
+                                        yscrollcommand=self.suffix_v_scrollbar.set)
+
+        self.suffix_actions_text.grid(row=0, column=0, sticky="nsew")
+        self.suffix_h_scrollbar.grid(row=1, column=0, sticky="ew")
+        self.suffix_v_scrollbar.grid(row=0, column=1, sticky="ns")
 
     def _create_folder_name_input(self):
-        folder_label = tk.Label(self.root, text="Folder Name:", bg="#f0f0f0", font=("Helvetica", 10))
-        folder_label.grid(row=5, column=0, sticky="w", padx=10, pady=5)
+        folder_label = tk.Label(self.main_frame, text="Folder Name:", bg="#f0f0f0", font=("Helvetica", 10))
+        folder_label.grid(row=5, column=0, sticky="w", pady=5)
 
-        self.folder_input_entry = tk.Entry(self.root, font=("Helvetica", 10))
-        self.folder_input_entry.grid(row=5, column=1, columnspan=2, sticky="ew", padx=10, pady=5)
+        self.folder_input_entry = tk.Entry(self.main_frame, font=("Helvetica", 10))
+        self.folder_input_entry.grid(row=5, column=1, columnspan=2, sticky="ew", pady=5)
 
     def _create_script_name_input(self):
-        script_label = tk.Label(self.root, text="Script Name:", bg="#f0f0f0", font=("Helvetica", 10))
-        script_label.grid(row=6, column=0, sticky="w", padx=10, pady=5)
+        script_label = tk.Label(self.main_frame, text="Script Name:", bg="#f0f0f0", font=("Helvetica", 10))
+        script_label.grid(row=6, column=0, sticky="w", pady=5)
 
-        self.script_input_entry = tk.Entry(self.root, font=("Helvetica", 10))
-        self.script_input_entry.grid(row=6, column=1, columnspan=2, sticky="ew", padx=10, pady=5)
+        self.script_input_entry = tk.Entry(self.main_frame, font=("Helvetica", 10))
+        self.script_input_entry.grid(row=6, column=1, columnspan=2, sticky="ew", pady=5)
 
     def _create_buttons_frame(self):
-        buttons_frame = tk.Frame(self.root, bg="#f0f0f0")
-        buttons_frame.grid(row=7, column=0, columnspan=3, padx=10, pady=10, sticky="ew")
+        buttons_frame = tk.Frame(self.main_frame, bg="#f0f0f0")
+        buttons_frame.grid(row=7, column=0, columnspan=3, pady=10, sticky="ew")
         buttons_frame.grid_columnconfigure(0, weight=1)
         buttons_frame.grid_columnconfigure(1, weight=1)
 
-        self.generate_button = tk.Button(buttons_frame, text="Generate Script", command=self.generate_and_save_script, bg="#4CAF50", fg="white", font=("Helvetica", 10, "bold"))
-        self.generate_button.grid(row=0, column=0, padx=5, pady=5, sticky="ew")
+        self.generate_button = tk.Button(buttons_frame, text="Generate Script", 
+                                       command=self.generate_and_save_script,
+                                       bg="#4CAF50", fg="white", font=("Helvetica", 10, "bold"))
+        self.generate_button.grid(row=0, column=0, padx=5, sticky="ew")
 
-        self.reset_button = tk.Button(buttons_frame, text="Reset", command=self._reset_fields, bg="#f44336", fg="white", font=("Helvetica", 10, "bold"))
-        self.reset_button.grid(row=0, column=1, padx=5, pady=5, sticky="ew")
+        self.reset_button = tk.Button(buttons_frame, text="Reset", command=self._reset_fields,
+                                    bg="#f44336", fg="white", font=("Helvetica", 10, "bold"))
+        self.reset_button.grid(row=0, column=1, padx=5, sticky="ew")
 
     def _create_generated_script_output(self):
-        output_label = tk.Label(self.root, text="Generated Script:", bg="#f0f0f0", font=("Helvetica", 10))
-        output_label.grid(row=8, column=0, sticky="nw", padx=10, pady=5)
+        output_label = tk.Label(self.main_frame, text="Generated Script:", bg="#f0f0f0", font=("Helvetica", 10))
+        output_label.grid(row=8, column=0, sticky="nw", pady=5)
 
-        self.output_frame = tk.Frame(self.root)
-        self.output_frame.grid(row=8, column=0, columnspan=3, padx=10, pady=5, sticky="nsew")
+        self.output_frame = tk.Frame(self.main_frame)
+        self.output_frame.grid(row=8, column=0, columnspan=3, sticky="nsew", pady=5)
+        self.output_frame.grid_columnconfigure(0, weight=1)
+        self.output_frame.grid_rowconfigure(0, weight=1)
 
-        self.output_scrollbar = tk.Scrollbar(self.output_frame)
-        self.generated_script = tk.Text(self.output_frame, height=10, wrap="word", 
-                                        yscrollcommand=self.output_scrollbar.set, font=("Helvetica", 10))
-        self.output_scrollbar.config(command=self.generated_script.yview)
+        self.generated_script = tk.Text(self.output_frame, height=10, wrap="none", font=("Helvetica", 10))
+        self.output_h_scrollbar = tk.Scrollbar(self.output_frame, orient="horizontal", 
+                                             command=self.generated_script.xview)
+        self.output_v_scrollbar = tk.Scrollbar(self.output_frame, orient="vertical", 
+                                             command=self.generated_script.yview)
+        self.generated_script.configure(xscrollcommand=self.output_h_scrollbar.set,
+                                     yscrollcommand=self.output_v_scrollbar.set)
 
-        self.output_scrollbar.pack(side="right", fill="y")
-        self.generated_script.pack(side="left", fill="both", expand=True)
+        self.generated_script.grid(row=0, column=0, sticky="nsew")
+        self.output_h_scrollbar.grid(row=1, column=0, sticky="ew")
+        self.output_v_scrollbar.grid(row=0, column=1, sticky="ns")
+
+        # Configure row weight for output frame
+        self.main_frame.grid_rowconfigure(8, weight=1)
 
     def _reset_fields(self):
         """Reset all input fields to their default state"""
