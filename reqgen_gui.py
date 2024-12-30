@@ -1,12 +1,10 @@
 import tkinter as tk
-from tkinter import messagebox
+from tkinter import messagebox, ttk
 import base64
 import re
 import pyperclip
 from gui import SeleniumScriptGeneratorApp as sa
 import json
-
-import tkinter as tk
 
 class CurlEditorApp:
     def __init__(self, root):
@@ -15,9 +13,9 @@ class CurlEditorApp:
 
         # Configure grid layout
         self.root.rowconfigure(1, weight=1)  # cURL input box
-        self.root.rowconfigure(6, weight=1)  # Headers input box
-        self.root.rowconfigure(8, weight=1)  # Data input box
-        self.root.rowconfigure(10, weight=1)  # Base64 output box
+        self.root.rowconfigure(7, weight=1)  # Headers input box
+        self.root.rowconfigure(9, weight=1)  # Data input box
+        self.root.rowconfigure(11, weight=1)  # Base64 output box
         self.root.columnconfigure(0, weight=1)
         self.root.columnconfigure(1, weight=1)
 
@@ -29,37 +27,47 @@ class CurlEditorApp:
         # Parse button
         tk.Button(root, text="Parse cURL", command=self.parse_curl).grid(row=2, column=0, columnspan=2, pady=5)
 
-        # Editable fields
+        # Method dropdown
+        self.method_label = tk.Label(root, text="Method:")
+        self.method_label.grid(row=3, column=0, sticky="w", padx=5, pady=2)
+        self.method_var = tk.StringVar(value="GET")
+        self.method_dropdown = ttk.Combobox(root, textvariable=self.method_var, 
+                                          values=["GET", "POST", "PUT", "DELETE", "PATCH", "HEAD", "OPTIONS"],
+                                          state="readonly")
+        self.method_dropdown.grid(row=4, column=0, columnspan=2, sticky="ew", padx=5, pady=2)
+
+        # URL field
         self.url_label = tk.Label(root, text="URL:")
-        self.url_label.grid(row=3, column=0, sticky="w", padx=5, pady=2)
+        self.url_label.grid(row=5, column=0, sticky="w", padx=5, pady=2)
         self.url_entry = tk.Entry(root)
-        self.url_entry.grid(row=4, column=0, columnspan=2, sticky="ew", padx=5, pady=2)
+        self.url_entry.grid(row=6, column=0, columnspan=2, sticky="ew", padx=5, pady=2)
 
+        # Headers field
         self.headers_label = tk.Label(root, text="Headers (Key: Value):")
-        self.headers_label.grid(row=5, column=0, sticky="w", padx=5, pady=2)
+        self.headers_label.grid(row=7, column=0, sticky="w", padx=5, pady=2)
         self.headers_text = tk.Text(root, height=8, wrap="word")
-        self.headers_text.grid(row=6, column=0, columnspan=2, sticky="nsew", padx=5, pady=5)
+        self.headers_text.grid(row=8, column=0, columnspan=2, sticky="nsew", padx=5, pady=5)
 
+        # Data field
         self.data_label = tk.Label(root, text="Data:")
-        self.data_label.grid(row=7, column=0, sticky="w", padx=5, pady=2)
+        self.data_label.grid(row=9, column=0, sticky="w", padx=5, pady=2)
         self.data_entry = tk.Text(root, height=6, wrap="word")
-        self.data_entry.grid(row=8, column=0, columnspan=2, sticky="nsew", padx=5, pady=2)
+        self.data_entry.grid(row=10, column=0, columnspan=2, sticky="nsew", padx=5, pady=2)
 
-        # Convert, Copy, and Add to Actions buttons
+        # Convert and Copy buttons
         self.convert_button = tk.Button(root, text="Convert to Action Format", command=self.convert_to_base64)
-        self.convert_button.grid(row=9, column=0, pady=5)
+        self.convert_button.grid(row=11, column=0, pady=5)
 
         self.copy_button = tk.Button(root, text="Copy Action", command=self.copy_to_clipboard)
-        self.copy_button.grid(row=9, column=1, pady=5)
+        self.copy_button.grid(row=11, column=1, pady=5)
 
         # Base64 output
         self.base64_output = tk.Text(root, height=5, wrap="word", state="disabled")
-        self.base64_output.grid(row=10, column=0, columnspan=2, sticky="nsew", padx=5, pady=5)
+        self.base64_output.grid(row=12, column=0, columnspan=2, sticky="nsew", padx=5, pady=5)
 
         # Adjust column configuration for responsiveness
         for col in range(2):
             root.columnconfigure(col, weight=1)
-
 
     def parse_curl(self):
         curl_command = self.curl_entry.get("1.0", tk.END).strip()
@@ -72,13 +80,17 @@ class CurlEditorApp:
             url_match = re.search(r"--location '(.*?)'", curl_command)
             url = url_match.group(1) if url_match else ""
 
+            # Extract method
+            method_match = re.search(r"-X\s+'([^']+)'", curl_command)
+            method = method_match.group(1) if method_match else "GET"
+            self.method_var.set(method)
+
             # Extract Headers
             headers = re.findall(r"--header\s+'([^']+)'", curl_command)
 
             # Extract Data
             data_match = re.search(r"--data\s+'([^']+)'", curl_command, re.DOTALL)
             data = data_match.group(1) if data_match else ""
-            # data = json.dumps(data)
 
             # Populate GUI fields
             self.url_entry.delete(0, tk.END)
@@ -95,6 +107,7 @@ class CurlEditorApp:
 
     def convert_to_base64(self):
         url = self.url_entry.get()
+        method = self.method_var.get()
         headers = self.headers_text.get("1.0", tk.END).strip().split("\n")
         data = self.data_entry.get("1.0", tk.END)
 
@@ -104,14 +117,15 @@ class CurlEditorApp:
 
         try:
             # Construct the cURL command
-            curl_command = f"curl --location '{url}'"
+            curl_command = f"curl --location '{url}' -X '{method}'"
 
             # Add headers
             for header in headers:
-                curl_command += f" --header '{header.strip()}'"
+                if header.strip():  # Only add non-empty headers
+                    curl_command += f" --header '{header.strip()}'"
 
             # Add data if available
-            if data:
+            if data.strip():
                 curl_command += f" --data '{data.strip()}'"
 
             # Encode the cURL command to Base64
@@ -133,10 +147,6 @@ class CurlEditorApp:
             messagebox.showinfo("Copied", "Base64 data copied to clipboard.")
         else:
             messagebox.showerror("Error", "No Base64 data to copy.")
-
-    # def add_to_actions(self):
-    #     sa.hehe.actions_text.insert(tk.END, self.base64_output.get("1.0", tk.END))
-    
 
 if __name__ == "__main__":
     root = tk.Tk()
