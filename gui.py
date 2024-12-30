@@ -2,7 +2,7 @@
 import tkinter as tk
 from tkinter import ttk
 import os
-import threading
+import subprocess
 import csv
 from script_generator import ScriptGenerator
 
@@ -50,12 +50,8 @@ class SeleniumScriptGeneratorApp:
 
         # Add button to trigger reqgen_gui.py
         def trigger_reqgen_gui():
-            def run_script():
-                os.system("python reqgen_gui.py")
-            
-            # Create and start a new thread
-            thread = threading.Thread(target=run_script)
-            thread.start()
+            subprocess.Popen(["python", "reqgen_gui.py"])
+
         reqgen_button = tk.Button(self.main_frame, text="Add API", command=trigger_reqgen_gui,
                                 bg="#FFA500", fg="white", font=("Helvetica", 10, "bold"))
         reqgen_button.grid(row=1, column=2, padx=(5, 0), pady=5)

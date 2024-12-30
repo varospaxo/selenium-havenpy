@@ -6,54 +6,60 @@ import pyperclip
 from gui import SeleniumScriptGeneratorApp as sa
 import json
 
+import tkinter as tk
+
 class CurlEditorApp:
     def __init__(self, root):
         self.root = root
         self.root.title("cURL Editor and Base64 Converter")
 
         # Configure grid layout
-        self.root.rowconfigure(1, weight=1)
+        self.root.rowconfigure(1, weight=1)  # cURL input box
+        self.root.rowconfigure(6, weight=1)  # Headers input box
+        self.root.rowconfigure(8, weight=1)  # Data input box
+        self.root.rowconfigure(10, weight=1)  # Base64 output box
         self.root.columnconfigure(0, weight=1)
+        self.root.columnconfigure(1, weight=1)
 
         # Input cURL command
         tk.Label(root, text="Input cURL Command:").grid(row=0, column=0, sticky="w", padx=5, pady=5)
         self.curl_entry = tk.Text(root, height=5, wrap="word")
-        self.curl_entry.grid(row=1, column=0, sticky="nsew", padx=5, pady=5)
+        self.curl_entry.grid(row=1, column=0, columnspan=2, sticky="nsew", padx=5, pady=5)
 
         # Parse button
-        tk.Button(root, text="Parse cURL", command=self.parse_curl).grid(row=2, column=0, pady=5)
+        tk.Button(root, text="Parse cURL", command=self.parse_curl).grid(row=2, column=0, columnspan=2, pady=5)
 
         # Editable fields
         self.url_label = tk.Label(root, text="URL:")
         self.url_label.grid(row=3, column=0, sticky="w", padx=5, pady=2)
         self.url_entry = tk.Entry(root)
-        self.url_entry.grid(row=4, column=0, sticky="ew", padx=5, pady=2)
+        self.url_entry.grid(row=4, column=0, columnspan=2, sticky="ew", padx=5, pady=2)
 
         self.headers_label = tk.Label(root, text="Headers (Key: Value):")
         self.headers_label.grid(row=5, column=0, sticky="w", padx=5, pady=2)
         self.headers_text = tk.Text(root, height=8, wrap="word")
-        self.headers_text.grid(row=6, column=0, sticky="nsew", padx=5, pady=5)
+        self.headers_text.grid(row=6, column=0, columnspan=2, sticky="nsew", padx=5, pady=5)
 
         self.data_label = tk.Label(root, text="Data:")
         self.data_label.grid(row=7, column=0, sticky="w", padx=5, pady=2)
         self.data_entry = tk.Text(root, height=6, wrap="word")
-        self.data_entry.grid(row=8, column=0, sticky="ew", padx=5, pady=2)
+        self.data_entry.grid(row=8, column=0, columnspan=2, sticky="nsew", padx=5, pady=2)
 
         # Convert, Copy, and Add to Actions buttons
-        self.convert_button = tk.Button(root, text="Convert to Base64", command=self.convert_to_base64)
+        self.convert_button = tk.Button(root, text="Convert to Action Format", command=self.convert_to_base64)
         self.convert_button.grid(row=9, column=0, pady=5)
 
         self.copy_button = tk.Button(root, text="Copy Action", command=self.copy_to_clipboard)
-        self.copy_button.grid(row=10, column=0, pady=5)
+        self.copy_button.grid(row=9, column=1, pady=5)
 
-        # self.add_button = tk.Button(root, text="Add to Main Actions", command=self.add_to_actions)
-        # self.add_button.grid(row=11, column=0, pady=5)
-
+        # Base64 output
         self.base64_output = tk.Text(root, height=5, wrap="word", state="disabled")
-        self.base64_output.grid(row=12, column=0, sticky="nsew", padx=5, pady=5)
+        self.base64_output.grid(row=10, column=0, columnspan=2, sticky="nsew", padx=5, pady=5)
 
-        # Make all columns responsive
-        root.columnconfigure(0, weight=1)
+        # Adjust column configuration for responsiveness
+        for col in range(2):
+            root.columnconfigure(col, weight=1)
+
 
     def parse_curl(self):
         curl_command = self.curl_entry.get("1.0", tk.END).strip()
