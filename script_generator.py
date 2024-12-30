@@ -195,7 +195,7 @@ class ScriptGenerator:
             # Extract headers
             headers = {}
             for header_match in re.finditer(r"--header '(.*?): (.*?)'", curl_command):
-                headers[header_match.group(1)] = header_match.group(2)
+                headers[header_match.group(1)] = header_match.group(2) if header_match else None
 
             # Extract payload
             payload_match = re.search(r"--data '(.*?)'", curl_command, re.DOTALL)
@@ -215,9 +215,17 @@ class ScriptGenerator:
             f"method = '{method}'\n"
             f"payload = json.dumps({payload})\n"
             f"headers = {json.dumps(headers, indent=2)}\n"
-            f"response = requests.request(method, url, headers=headers, data=payload)\n"
-            f"print(response.text)\n"
             )
+            if payload is not None and headers is not None:
+                script +=f"response = requests.request(method, url, headers=headers, data=payload)\n"
+            elif payload is not None and headers is None:
+                script +=f"response = requests.request(method, url, data=payload)\n"
+            elif payload is None and headers is not None:
+                script +=f"response = requests.request(method, url, headers=headers)\n"
+            else:  # payload is None and headers are absent
+                script +=f"response = requests.request(method, url)\n"
+            script +=f"print(response.text)\n"
+            
         elif action_type == "scroll":
             script += f"driver.execute_script('window.scrollTo(0, document.body.scrollHeight)')\n"
         elif action_type == "scroll_up":
