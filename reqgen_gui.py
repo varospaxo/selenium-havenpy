@@ -1,37 +1,59 @@
 import tkinter as tk
-from tkinter import messagebox, simpledialog
+from tkinter import messagebox
 import base64
 import re
 import pyperclip
+from gui import SeleniumScriptGeneratorApp as sa
+import json
 
 class CurlEditorApp:
     def __init__(self, root):
         self.root = root
         self.root.title("cURL Editor and Base64 Converter")
 
+        # Configure grid layout
+        self.root.rowconfigure(1, weight=1)
+        self.root.columnconfigure(0, weight=1)
+
         # Input cURL command
-        tk.Label(root, text="Input cURL Command:").pack(anchor="w")
-        self.curl_entry = tk.Text(root, height=8, width=80)
-        self.curl_entry.pack(pady=5)
+        tk.Label(root, text="Input cURL Command:").grid(row=0, column=0, sticky="w", padx=5, pady=5)
+        self.curl_entry = tk.Text(root, height=5, wrap="word")
+        self.curl_entry.grid(row=1, column=0, sticky="nsew", padx=5, pady=5)
 
-        # Parse and Edit button
-        tk.Button(root, text="Parse cURL", command=self.parse_curl).pack(pady=5)
+        # Parse button
+        tk.Button(root, text="Parse cURL", command=self.parse_curl).grid(row=2, column=0, pady=5)
 
-        # Edit fields
+        # Editable fields
         self.url_label = tk.Label(root, text="URL:")
-        self.url_entry = tk.Entry(root, width=80)
+        self.url_label.grid(row=3, column=0, sticky="w", padx=5, pady=2)
+        self.url_entry = tk.Entry(root)
+        self.url_entry.grid(row=4, column=0, sticky="ew", padx=5, pady=2)
 
         self.headers_label = tk.Label(root, text="Headers (Key: Value):")
-        self.headers_text = tk.Text(root, height=8, width=80)
+        self.headers_label.grid(row=5, column=0, sticky="w", padx=5, pady=2)
+        self.headers_text = tk.Text(root, height=8, wrap="word")
+        self.headers_text.grid(row=6, column=0, sticky="nsew", padx=5, pady=5)
 
         self.data_label = tk.Label(root, text="Data:")
-        self.data_entry = tk.Entry(root, width=80)
+        self.data_label.grid(row=7, column=0, sticky="w", padx=5, pady=2)
+        self.data_entry = tk.Text(root, height=6, wrap="word")
+        self.data_entry.grid(row=8, column=0, sticky="ew", padx=5, pady=2)
 
-        # Convert and Copy buttons
+        # Convert, Copy, and Add to Actions buttons
         self.convert_button = tk.Button(root, text="Convert to Base64", command=self.convert_to_base64)
-        self.copy_button = tk.Button(root, text="Copy Base64 Data", command=self.copy_to_clipboard)
+        self.convert_button.grid(row=9, column=0, pady=5)
 
-        self.base64_output = tk.Text(root, height=5, width=80, state="disabled")
+        self.copy_button = tk.Button(root, text="Copy Action", command=self.copy_to_clipboard)
+        self.copy_button.grid(row=10, column=0, pady=5)
+
+        # self.add_button = tk.Button(root, text="Add to Main Actions", command=self.add_to_actions)
+        # self.add_button.grid(row=11, column=0, pady=5)
+
+        self.base64_output = tk.Text(root, height=5, wrap="word", state="disabled")
+        self.base64_output.grid(row=12, column=0, sticky="nsew", padx=5, pady=5)
+
+        # Make all columns responsive
+        root.columnconfigure(0, weight=1)
 
     def parse_curl(self):
         curl_command = self.curl_entry.get("1.0", tk.END).strip()
@@ -50,29 +72,17 @@ class CurlEditorApp:
             # Extract Data
             data_match = re.search(r"--data\s+'([^']+)'", curl_command, re.DOTALL)
             data = data_match.group(1) if data_match else ""
-
-            # Debugging (optional: remove these later)
-            print("Extracted URL:", url)
-            print("Extracted Headers:", headers)
-            print("Extracted Data:", data)
+            # data = json.dumps(data)
 
             # Populate GUI fields
-            self.url_label.pack(anchor="w")
-            self.url_entry.pack(pady=5)
             self.url_entry.delete(0, tk.END)
             self.url_entry.insert(0, url)
 
-            self.headers_label.pack(anchor="w")
-            self.headers_text.pack(pady=5)
             self.headers_text.delete("1.0", tk.END)
             self.headers_text.insert("1.0", "\n".join(headers))
 
-            self.data_label.pack(anchor="w")
-            self.data_entry.pack(pady=5)
-            self.data_entry.delete(0, tk.END)
-            self.data_entry.insert(0, data)
-
-            self.convert_button.pack(pady=5)
+            self.data_entry.delete("1.0", tk.END)
+            self.data_entry.insert("1.0", data)
 
         except Exception as e:
             messagebox.showerror("Error", f"Failed to parse cURL command: {e}")
@@ -80,7 +90,7 @@ class CurlEditorApp:
     def convert_to_base64(self):
         url = self.url_entry.get()
         headers = self.headers_text.get("1.0", tk.END).strip().split("\n")
-        data = self.data_entry.get()
+        data = self.data_entry.get("1.0", tk.END)
 
         if not url:
             messagebox.showerror("Error", "URL cannot be empty.")
@@ -106,9 +116,6 @@ class CurlEditorApp:
             self.base64_output.delete("1.0", tk.END)
             self.base64_output.insert("1.0", base64_data)
             self.base64_output.config(state="disabled")
-            self.base64_output.pack(pady=5)
-
-            self.copy_button.pack(pady=5)
 
         except Exception as e:
             messagebox.showerror("Error", f"Failed to convert to Base64: {e}")
@@ -116,10 +123,14 @@ class CurlEditorApp:
     def copy_to_clipboard(self):
         base64_data = self.base64_output.get("1.0", tk.END).strip()
         if base64_data:
-            pyperclip.copy(base64_data)
+            pyperclip.copy("request|"+base64_data)
             messagebox.showinfo("Copied", "Base64 data copied to clipboard.")
         else:
             messagebox.showerror("Error", "No Base64 data to copy.")
+
+    # def add_to_actions(self):
+    #     sa.hehe.actions_text.insert(tk.END, self.base64_output.get("1.0", tk.END))
+    
 
 if __name__ == "__main__":
     root = tk.Tk()

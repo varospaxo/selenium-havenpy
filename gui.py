@@ -2,6 +2,7 @@
 import tkinter as tk
 from tkinter import ttk
 import os
+import threading
 import csv
 from script_generator import ScriptGenerator
 
@@ -24,7 +25,6 @@ class SeleniumScriptGeneratorApp:
         # Initialize UI components
         self._create_browser_selection()
         self._create_url_input()
-        self._create_help_button()
         self._create_actions_input()
         self._create_prefix_suffix_actions()
         self._create_folder_name_input()
@@ -39,7 +39,7 @@ class SeleniumScriptGeneratorApp:
         self.browser_selection_combobox = ttk.Combobox(self.main_frame, textvariable=tk.StringVar(), 
                                                      values=["Chrome", "Firefox"], state="readonly")
         self.browser_selection_combobox.set(ScriptGenerator.DEFAULT_BROWSER)
-        self.browser_selection_combobox.grid(row=0, column=1, columnspan=2, sticky="ew", pady=5)
+        self.browser_selection_combobox.grid(row=0, column=1, columnspan=3, sticky="ew", pady=5)
 
     def _create_url_input(self):
         url_label = tk.Label(self.main_frame, text="URL:", bg="#f0f0f0", font=("Helvetica", 10))
@@ -48,7 +48,19 @@ class SeleniumScriptGeneratorApp:
         self.url_input_entry = tk.Entry(self.main_frame, font=("Helvetica", 10))
         self.url_input_entry.grid(row=1, column=1, sticky="ew", pady=5)
 
-    def _create_help_button(self):
+        # Add button to trigger reqgen_gui.py
+        def trigger_reqgen_gui():
+            def run_script():
+                os.system("python reqgen_gui.py")
+            
+            # Create and start a new thread
+            thread = threading.Thread(target=run_script)
+            thread.start()
+        reqgen_button = tk.Button(self.main_frame, text="Add API", command=trigger_reqgen_gui,
+                                bg="#FFA500", fg="white", font=("Helvetica", 10, "bold"))
+        reqgen_button.grid(row=1, column=2, padx=(5, 0), pady=5)
+
+        # Existing Help button
         try:
             with open('instructions.txt', 'r') as file:
                 instructions = file.read()
@@ -71,9 +83,10 @@ class SeleniumScriptGeneratorApp:
             self.script_input_entry.delete(0, tk.END)
             self.script_input_entry.insert(0, "Script Name")
 
-        help_button = tk.Button(self.main_frame, text="Help", command=add_placeholder, 
-                              bg="#4CAF50", fg="white", font=("Helvetica", 10, "bold"))
-        help_button.grid(row=1, column=2, pady=5, padx=(5, 0))
+        help_button = tk.Button(self.main_frame, text="Help", command=add_placeholder,
+                                bg="#4CAF50", fg="white", font=("Helvetica", 10, "bold"))
+        help_button.grid(row=1, column=3, pady=5, padx=(5, 0))
+
 
     def _create_actions_input(self):
         actions_label = tk.Label(self.main_frame, text="Main Actions:", bg="#f0f0f0", font=("Helvetica", 10))
@@ -81,7 +94,7 @@ class SeleniumScriptGeneratorApp:
 
         # Frame for actions with proper weight configuration
         self.actions_frame = tk.Frame(self.main_frame)
-        self.actions_frame.grid(row=2, column=1, columnspan=2, sticky="nsew", pady=5)
+        self.actions_frame.grid(row=2, column=1, columnspan=3, sticky="nsew", pady=5)
         self.actions_frame.grid_columnconfigure(0, weight=1)
         self.actions_frame.grid_rowconfigure(0, weight=1)
 
@@ -106,7 +119,7 @@ class SeleniumScriptGeneratorApp:
         prefix_actions_label.grid(row=3, column=0, sticky="nw", pady=5)
 
         self.prefix_actions_frame = tk.Frame(self.main_frame)
-        self.prefix_actions_frame.grid(row=3, column=1, columnspan=2, sticky="nsew", pady=5)
+        self.prefix_actions_frame.grid(row=3, column=1, columnspan=3, sticky="nsew", pady=5)
         self.prefix_actions_frame.grid_columnconfigure(0, weight=1)
         self.prefix_actions_frame.grid_rowconfigure(0, weight=1)
 
@@ -127,7 +140,7 @@ class SeleniumScriptGeneratorApp:
         suffix_actions_label.grid(row=4, column=0, sticky="nw", pady=5)
 
         self.suffix_actions_frame = tk.Frame(self.main_frame)
-        self.suffix_actions_frame.grid(row=4, column=1, columnspan=2, sticky="nsew", pady=5)
+        self.suffix_actions_frame.grid(row=4, column=1, columnspan=3, sticky="nsew", pady=5)
         self.suffix_actions_frame.grid_columnconfigure(0, weight=1)
         self.suffix_actions_frame.grid_rowconfigure(0, weight=1)
 
@@ -148,18 +161,18 @@ class SeleniumScriptGeneratorApp:
         folder_label.grid(row=5, column=0, sticky="w", pady=5)
 
         self.folder_input_entry = tk.Entry(self.main_frame, font=("Helvetica", 10))
-        self.folder_input_entry.grid(row=5, column=1, columnspan=2, sticky="ew", pady=5)
+        self.folder_input_entry.grid(row=5, column=1, columnspan=3, sticky="ew", pady=5)
 
     def _create_script_name_input(self):
         script_label = tk.Label(self.main_frame, text="Script Name:", bg="#f0f0f0", font=("Helvetica", 10))
         script_label.grid(row=6, column=0, sticky="w", pady=5)
 
         self.script_input_entry = tk.Entry(self.main_frame, font=("Helvetica", 10))
-        self.script_input_entry.grid(row=6, column=1, columnspan=2, sticky="ew", pady=5)
+        self.script_input_entry.grid(row=6, column=1, columnspan=3, sticky="ew", pady=5)
 
     def _create_buttons_frame(self):
         buttons_frame = tk.Frame(self.main_frame, bg="#f0f0f0")
-        buttons_frame.grid(row=7, column=0, columnspan=3, pady=10, sticky="ew")
+        buttons_frame.grid(row=7, column=0, columnspan=4, pady=10, sticky="ew")
         buttons_frame.grid_columnconfigure(0, weight=1)
         buttons_frame.grid_columnconfigure(1, weight=1)
 
@@ -177,7 +190,7 @@ class SeleniumScriptGeneratorApp:
         output_label.grid(row=8, column=0, sticky="nw", pady=5)
 
         self.output_frame = tk.Frame(self.main_frame)
-        self.output_frame.grid(row=8, column=0, columnspan=3, sticky="nsew", pady=5)
+        self.output_frame.grid(row=8, column=0, columnspan=4, sticky="nsew", pady=5)
         self.output_frame.grid_columnconfigure(0, weight=1)
         self.output_frame.grid_rowconfigure(0, weight=1)
 
