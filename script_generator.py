@@ -12,11 +12,16 @@ class ScriptGenerator:
             "import csv\n"
             "import requests\n"
             "import json\n"
+            "import logging\n"
             "from selenium import webdriver\n"
             "from selenium.webdriver.common.by import By\n"
             "from selenium.webdriver.support.ui import WebDriverWait\n"
             "from selenium.webdriver.support import expected_conditions as EC\n"
             "from selenium.webdriver.common.action_chains import ActionChains\n"
+            "logging.basicConfig(\n"
+            "filename='run.log',\n"
+            "level=logging.INFO,\n"
+            "format='%(asctime)s - %(levelname)s - %(message)s')\n"
         )
 
     def generate_script(self, browser, url, actions, csv_name):
@@ -78,7 +83,8 @@ class ScriptGenerator:
                 "    element.click()\n"
                 "except Exception as e:\n"
                 "    # Fallback to coordinates if XPath click fails\n"
-                    f"    print('Failed to find XPath. Trying coordinate click.')\n" 
+                    f"    print('Failed to find XPath: {xpath}. Trying coordinate click.')\n"
+                    f"    logging.info('Failed to find XPath: {xpath}. Trying coordinate click.')\n"
             )
             # Parse coordinates and viewport
             if coords and ',' in coords:
@@ -175,7 +181,8 @@ class ScriptGenerator:
                     script += f"    wait.until(EC.{condition}((By.XPATH, '{xpath}')))\n"
                 elif coords == "until_not":
                     script += f"    wait.until_not(EC.{condition}((By.XPATH, '{xpath}')))\n"
-            script += f"except: print('Wait element failed')\n"
+            script += "except: print('Wait element failed')\n"
+            script += "    logging.info('Wait element failed')\n"
         
         elif action_type == "request":
             curl_command = base64.b64decode(xpath).decode('utf-8')
@@ -184,9 +191,9 @@ class ScriptGenerator:
             method_match = re.search(r"-X\s+(\w+)", curl_command)
             method = method_match.group(1) if method_match else "GET"
 
-            # Override method if --data or --form is present and method is not explicitly defined
-            if method == "GET" and ("--data" in curl_command or "--form" in curl_command):
-                method = "POST"
+            # # Override method if --data or --form is present and method is not explicitly defined
+            # if method == "GET" and ("--data" in curl_command or "--form" in curl_command):
+            #     method = "POST"
 
             # Extract the URL
             url_match = re.search(r"curl --location '(.*?)'", curl_command)
@@ -200,6 +207,8 @@ class ScriptGenerator:
             # Extract payload
             payload_match = re.search(r"--data '(.*?)'", curl_command, re.DOTALL)
             payload = payload_match.group(1) if payload_match else None
+            if payload == '':
+                payload = None
 
             # Format payload as JSON string if it exists
             if payload:
@@ -207,15 +216,14 @@ class ScriptGenerator:
                     payload = json.dumps(json.loads(payload), indent=2)
                 except json.JSONDecodeError:
                     print("Payload is not valid JSON, skipping payload.")
-                    payload = f''
+                    payload = None
 
             # Generate Python code
-            script +=(
-            f"url = '{url}'\n"
-            f"method = '{method}'\n"
-            f"payload = json.dumps({payload})\n"
-            f"headers = {json.dumps(headers, indent=2)}\n"
-            )
+
+            script +=f"url = '{url}'\n"
+            script +=f"method = '{method}'\n"
+            script +=f"payload = json.dumps({payload})\n"
+            script +=f"headers = {json.dumps(headers, indent=2)}\n"
             if payload is not None and headers is not None:
                 script +=f"response = requests.request(method, url, headers=headers, data=payload)\n"
             elif payload is not None and headers is None:
@@ -225,6 +233,7 @@ class ScriptGenerator:
             else:  # payload is None and headers are absent
                 script +=f"response = requests.request(method, url)\n"
             script +=f"print(response.text)\n"
+            script +=f"logging.info(response.text)\n"
             
         elif action_type == "scroll":
             script += f"driver.execute_script('window.scrollTo(0, document.body.scrollHeight)')\n"
