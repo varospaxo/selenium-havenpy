@@ -181,7 +181,8 @@ class ScriptGenerator:
                     script += f"    wait.until(EC.{condition}((By.XPATH, '{xpath}')))\n"
                 elif coords == "until_not":
                     script += f"    wait.until_not(EC.{condition}((By.XPATH, '{xpath}')))\n"
-            script += "except: print('Wait element failed')\n"
+            script += "except:\n"
+            script += "    print('Wait element failed')\n"
             script += "    logging.info('Wait element failed')\n"
         
         elif action_type == "request":
@@ -257,8 +258,8 @@ class ScriptGenerator:
             script += f"actions = ActionChains(driver)\n"
             script += f"actions.double_click(element).perform()\n"
         elif action_type == "drag_and_drop":
-            script += f"source = driver.find_element_by_xpath('{xpath}')\n"
-            script += f"target = driver.find_element_by_xpath('{coords}')\n"
+            script += f"source = driver.find_element(By.XPATH,'{xpath}')\n"
+            script += f"target = driver.find_element(By.XPATH,'{coords}')\n"
             script += f"actions = ActionChains(driver)\n"
             script += f"actions.drag_and_drop(source, target).perform()\n"
         elif action_type == "drag_and_drop_by":
