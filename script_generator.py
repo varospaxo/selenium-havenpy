@@ -235,7 +235,34 @@ class ScriptGenerator:
                 script +=f"response = requests.request(method, url)\n"
             script +=f"print(response.text)\n"
             script +=f"logging.info(response.text)\n"
-            
+        
+        elif action_type == "log":
+            if xpath == "info":
+                if coords == "var":
+                    script += f"logging.info({viewport})\n"
+                else:
+                    script += f"logging.info('{viewport}')\n"
+            elif xpath == "warning":
+                if coords == "var":
+                    script += f"logging.warning({viewport})\n"
+                else:
+                    script += f"logging.warning('{viewport}')\n"
+            elif xpath == "error":
+                if coords == "var":
+                    script += f"logging.error({viewport})\n"
+                else:
+                    script += f"logging.error('{viewport}')\n"
+            elif xpath == "debug":
+                if coords == "var":
+                    script += f"logging.debug({viewport})\n"
+                else:
+                    script += f"logging.debug('{viewport}')\n"
+            elif xpath == "critical":
+                if coords == "var":
+                    script += f"logging.critical({viewport})\n"
+                else:
+                    script += f"logging.critical('{viewport}')\n"
+
         elif action_type == "scroll":
             script += f"driver.execute_script('window.scrollTo(0, document.body.scrollHeight)')\n"
         elif action_type == "scroll_up":

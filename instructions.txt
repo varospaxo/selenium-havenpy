@@ -27,154 +27,159 @@ API Request - Add API call to the selenium script
 
 Note: Never use XPaths and inputs with single quotes ('')
 
-0. comment - Add a comment into the script
+0. log - Logs a statement or a variable into the logger
+   Format: log|type|str(string)/var(variable)|output content
+   Example: log|warning|var|response.text
+            log|info|str|Hello World
+            log|debug|var|variable1
+            log|critical|str|Deprecated module found
+            log|error|var|variableX
+
+1. comment - Add a comment into the script
    Format: <blank>/#/comment|Comment Text
    Example: #/comment|Hello World
 
-1. click - Perform a click action on the specified element.
+2. click - Perform a click action on the specified element.
    Format: click|XPath|coordinates(optional)|resolution(optional)
    Example: click|//button[@id=submit]|100,200|1920x1080
 
-2. input - Enter Text into an Input Field
+3. input - Enter Text into an Input Field
    Format: input|XPath|text|type|encoding/None
    Examples: Single line - input|//input[@name=username]|test_user|text|None
              Multi line (Base64 encoded)- input|//textarea[@id=description]|U29tZSBtdWx0aS1saW5lIHRleHQ=|textarea|encoded
 
-3. submit - Submit a form element.
+4. submit - Submit a form element.
    Format: submit|XPath(form)
    Example: submit|//form[@id=loginForm]
 
-4. sleep - Pause the execution for a specified number of seconds.
+5. sleep - Pause the execution for a specified number of seconds.
    Format: sleep|seconds
    Example: sleep|5
 
-5. wait - Wait for a specific condition to be met on an element.
+6. wait - Wait for a specific condition to be met on an element.
    Format: wait|XPath|until/until_not|mode|timeout
    Example: wait|//div[@id=loading]|until|visible|10
 
-Modes for 'wait':
-   visible: Wait until the element is visible.
-   invisible: Wait until the element is not visible.
-   clickable: Wait until the element is clickable.
-   presence: Wait until the element is present in the DOM.
-   staleness: Wait until the element becomes stale (is no longer attached to the DOM).
-   selected: Wait until the element is selected.
-   deselected: Wait until the element is deselected.
-   text_to_be_present: Wait until the specified text is present in the element.
-   text_to_be_present_in_value: Wait until the specified text is present in the element's value.
-   frame_to_be_available: Wait until the frame is available and switch to it.
-   alert_is_present: Wait until an alert is present.
-   title_contains: Wait until the title contains the specified text.
-   title_is: Wait until the title is exactly the specified text.
-   url_contains: Wait until the URL contains the specified text.
-   url_matches: Wait until the URL matches the specified pattern.
-   url_to_be: Wait until the URL is exactly the specified URL.
-   url_changes: Wait until the URL changes.
-   number_of_windows_to_be: Wait until the number of open windows matches the specified count.
-   new_window_is_opened: Wait until a new window is opened.
-   element_located_to_be_selected: Wait until the located element is selected.
-   element_selection_state_to_be: Wait until the element's selection state matches the specified state.
-   element_located_selection_state_to_be: Wait until the located element's selection state matches the specified state.
+   Modes for 'wait':
+      visible: Wait until the element is visible.
+      invisible: Wait until the element is not visible.
+      clickable: Wait until the element is clickable.
+      presence: Wait until the element is present in the DOM.
+      staleness: Wait until the element becomes stale (is no longer attached to the DOM).
+      selected: Wait until the element is selected.
+      deselected: Wait until the element is deselected.
+      text_to_be_present: Wait until the specified text is present in the element.
+      text_to_be_present_in_value: Wait until the specified text is present in the element's value.
+      frame_to_be_available: Wait until the frame is available and switch to it.
+      alert_is_present: Wait until an alert is present.
+      title_contains: Wait until the title contains the specified text.
+      title_is: Wait until the title is exactly the specified text.
+      url_contains: Wait until the URL contains the specified text.
+      url_matches: Wait until the URL matches the specified pattern.
+      url_to_be: Wait until the URL is exactly the specified URL.
+      url_changes: Wait until the URL changes.
+      number_of_windows_to_be: Wait until the number of open windows matches the specified count.
+      new_window_is_opened: Wait until a new window is opened.
+      element_located_to_be_selected: Wait until the located element is selected.
+      element_selection_state_to_be: Wait until the element's selection state matches the specified state.
+      element_located_selection_state_to_be: Wait until the located element's selection state matches the specified state.
 
-
-Additional Actions:
-
-6. scroll - Scroll to the bottom of the page.
+7. scroll - Scroll to the bottom of the page.
    Format: scroll
    Example: scroll
 
-7. scroll_up - Scroll to the top of the page.
+8. scroll_up - Scroll to the top of the page.
    Format: scroll_up
    Example: scroll_up
 
-8. scroll_to - Scroll to make an element visible.
+9. scroll_to - Scroll to make an element visible.
    Format: scroll_to|XPath
    Example: scroll_to|//div[@id=content]
 
-9. scroll_by - Scroll by specific x and y offsets.
-   Format: scroll_by|x|y
-   Example: scroll_by|0|500
+10. scroll_by - Scroll by specific x and y offsets.
+    Format: scroll_by|x|y
+    Example: scroll_by|0|500
 
-10. hover - Hover over an element.
+11. hover - Hover over an element.
     Format: hover|XPath
     Example: hover|//button[@class=menu]
 
-11. right_click - Perform a right-click on an element.
+12. right_click - Perform a right-click on an element.
     Format: right_click|XPath
     Example: right_click|//div[@id=context-menu]
 
-12. double_click - Perform a double-click on an element.
+13. double_click - Perform a double-click on an element.
     Format: double_click|XPath
     Example: double_click|//button[@class=edit]
 
-13. drag_and_drop - Drag and drop an element to a target location.
+14. drag_and_drop - Drag and drop an element to a target location.
     Format: drag_and_drop|sourceXPath|targetXPath
     Example: drag_and_drop|//div[@id=item]|//div[@id=arget]
 
-14. drag_and_drop_by - Drag an element by a specific offset.
+15. drag_and_drop_by - Drag an element by a specific offset.
     Format: drag_and_drop_by|XPath|x|y
     Example: drag_and_drop_by|//div[@id=item]|100|200
 
-15. accept_alert - Accept a browser alert.
+16. accept_alert - Accept a browser alert.
     Format: accept_alert
     Example: accept_alert
 
-16. dismiss_alert - Dismiss a browser alert.
+17. dismiss_alert - Dismiss a browser alert.
     Format: dismiss_alert
     Example: dismiss_alert
 
-17. send_keys_alert - Send keys to an alert input box.
+18. send_keys_alert - Send keys to an alert input box.
     Format: send_keys_alert|text
     Example: send_keys_alert|username123
 
-18. get_alert_text - Retrieve the text of an alert.
+19. get_alert_text - Retrieve the text of an alert.
     Format: get_alert_text
     Example: get_alert_text
 
-19. set_alert_text - Create a custom alert with a message.
+20. set_alert_text - Create a custom alert with a message.
     Format: set_alert_text|text
     Example: set_alert_text|Hello World
 
-20. get_attribute - Get a specified attribute of an element.
+21. get_attribute - Get a specified attribute of an element.
     Format: get_attribute|XPath|attributeName
     Example: get_attribute|//input[@id=username]|value
 
-21. get_css_value - Retrieve the CSS value of a property for an element.
+22. get_css_value - Retrieve the CSS value of a property for an element.
     Format: get_css_value|XPath|property
     Example: get_css_value|//div[@id=box]|color
 
-22. get_property - Retrieve a property of an element.
+23. get_property - Retrieve a property of an element.
     Format: get_property|XPath|propertyName
     Example: get_property|//input[@id=checkbox]|checked
 
-23. get_text - Retrieve the text content of an element.
+24. get_text - Retrieve the text content of an element.
     Format: get_text|XPath
     Example: get_text|//p[@id=message]
 
-24. get_title - Retrieve the page title.
+25. get_title - Retrieve the page title.
     Format: get_title
     Example: get_title
 
-25. get_url - Retrieve the current page URL.
+26. get_url - Retrieve the current page URL.
     Format: get_url
     Example: get_url
 
-26. get_page_source - Retrieve the HTML source of the current page.
+27. get_page_source - Retrieve the HTML source of the current page.
     Format: get_page_source
     Example: get_page_source
 
-27. get_cookies - Retrieve all browser cookies.
+28. get_cookies - Retrieve all browser cookies.
     Format: get_cookies
     Example: get_cookies
 
-28. add_cookie - Add a new browser cookie.
+29. add_cookie - Add a new browser cookie.
     Format: add_cookie|cookieData
-    Example: add_cookie|{ame: session, value: 12345}
+    Example: add_cookie|{name: session, value: 12345}
 
-29. delete_cookie - Delete a specific browser cookie.
+30. delete_cookie - Delete a specific browser cookie.
     Format: delete_cookie|cookieName
     Example: delete_cookie|session
 
-30. delete_all_cookies - Delete all browser cookies.
+31. delete_all_cookies - Delete all browser cookies.
     Format: delete_all_cookies
     Example: delete_all_cookies
