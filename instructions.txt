@@ -183,3 +183,9 @@ Note: Never use XPaths and inputs with single quotes ('')
 31. delete_all_cookies - Delete all browser cookies.
     Format: delete_all_cookies
     Example: delete_all_cookies
+
+32. screenshot/ss - Capture screenshot of the browser viewport.
+    Format: ss/screenshot|filename(optional)
+    Example: ss
+             screenshot
+             ss|test

@@ -18,6 +18,10 @@ class ScriptGenerator:
             "from selenium.webdriver.support.ui import WebDriverWait\n"
             "from selenium.webdriver.support import expected_conditions as EC\n"
             "from selenium.webdriver.common.action_chains import ActionChains\n"
+            "from datetime import datetime\n"
+            "start_time = datetime.now()\n"
+            "start_time = start_time.strftime('%H%M%S')\n"
+            "print('Start time:', start_time)\n"
             "logging.basicConfig(\n"
             "filename='run.log',\n"
             "level=logging.INFO,\n"
@@ -327,6 +331,14 @@ class ScriptGenerator:
             script += f"driver.add_cookie({xpath})\n"
         elif action_type == "delete_cookie":
             script += f"driver.delete_cookie('{xpath}')\n"
-        elif action_type == "delete_all_cookies":  
+        elif action_type == "delete_all_cookies":
             script += f"driver.delete_all_cookies()\n"
+        elif action_type == "ss" or action_type == "screenshot":
+            if xpath:
+                file_name = xpath+".png"
+                script += f"driver.save_screenshot('{file_name}')\n"
+            else:
+                script += "current_time = datetime.now()\n"
+                script += "filename = current_time.strftime('Screenshot-'+start_time+'_%d%m%y_%H%M%S') + '.png'\n"
+                script += f"driver.save_screenshot(filename)\n"
         return script
