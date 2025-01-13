@@ -96,9 +96,10 @@ Note: Never use XPaths and inputs with single quotes ('')
    Format: scroll_to|XPath
    Example: scroll_to|//div[@id=content]
 
-10. scroll_by - Scroll by specific x and y offsets.
-    Format: scroll_by|x|y
-    Example: scroll_by|0|500
+10. scroll_by - Scroll by specific x and y axes.
+    Format: scroll_by|x-axis|y-axis|1920x1080
+    Example: scroll_by|0|500|1920x1080
+             scroll_by|0|-500|1920x1080
 
 11. hover - Hover over an element.
     Format: hover|XPath

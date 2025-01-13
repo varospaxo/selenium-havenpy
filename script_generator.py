@@ -10,6 +10,7 @@ class ScriptGenerator:
         return (
             "import time\n"
             "import csv\n"
+            "import sys\n"
             "import requests\n"
             "import json\n"
             "import logging\n"
@@ -26,6 +27,7 @@ class ScriptGenerator:
             "filename='run.log',\n"
             "level=logging.INFO,\n"
             "format='%(asctime)s - %(levelname)s - %(message)s')\n"
+            "force_clicks=0\n"
         )
 
     def generate_script(self, browser, url, actions, csv_name):
@@ -82,13 +84,21 @@ class ScriptGenerator:
                 f"try: WebDriverWait(driver, 5).until_not(EC.presence_of_element_located((By.XPATH, \"//ion-spinner[@id='spinner']\")))\n"
                 "except: pass\n"
                 "try:\n"
+                f"    if force_clicks > 3:\n"
+                f"      print('Force clicks exceeded limit. Exiting script.')\n"
+                f"      logging.info('Failed to find XPath: {xpath}. Trying coordinate click.')\n"
+                f"      sys.exit()\n"
                 f"    wait = WebDriverWait(driver, {wait})\n"
                 f"    element = wait.until(EC.element_to_be_clickable((By.XPATH, '{xpath}')))\n"
                 "    element.click()\n"
+                "    force_clicks=0\n"
+                # "    print(force_clicks)\n"
                 "except Exception as e:\n"
                 "    # Fallback to coordinates if XPath click fails\n"
                     f"    print('Failed to find XPath: {xpath}. Trying coordinate click.')\n"
                     f"    logging.info('Failed to find XPath: {xpath}. Trying coordinate click.')\n"
+                    f"    force_clicks+=1\n"
+                    # f"    print(force_clicks)\n"
             )
             # Parse coordinates and viewport
             if coords and ',' in coords:
@@ -266,7 +276,6 @@ class ScriptGenerator:
                     script += f"logging.critical({viewport})\n"
                 else:
                     script += f"logging.critical('{viewport}')\n"
-
         elif action_type == "scroll":
             script += f"driver.execute_script('window.scrollTo(0, document.body.scrollHeight)')\n"
         elif action_type == "scroll_up":
@@ -275,6 +284,18 @@ class ScriptGenerator:
             script += f"element = driver.find_element_by_xpath('{xpath}')\n"
             script += f"driver.execute_script('arguments[0].scrollIntoView(true);', element)\n"
         elif action_type == "scroll_by":
+            if viewport and 'x' in viewport.lower():
+                width, height = viewport.lower().split('x')
+                width, height = width.strip(), height.strip()
+            else:
+                width, height = None, None
+
+            if width and height:
+                script += f"set_viewport_size(driver, {width}, {height})\n"
+            else:
+                print("Viewport not provided or invalid.")
+            xpath = int(float(xpath))
+            coords = int(float(coords))
             script += f"driver.execute_script('window.scrollBy({xpath}, {coords})')\n"
         elif action_type == "hover":
             script += f"element = driver.find_element_by_xpath('{xpath}')\n"
