@@ -35,9 +35,12 @@ try:
        driver.set_window_size(*window_size)
 
 except: pass
+response_text = "Hello World" 
+variable1 = "Hello World"
+variableX = "Hello World"
 driver.get('https://example.com')
 # Prefix text
-logging.warning(response.text)
+logging.warning(response_text)
 # Suffix text
 # Prefix text
 logging.info('Hello World')
