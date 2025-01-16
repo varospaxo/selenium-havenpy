@@ -1,0 +1,65 @@
+log|warning|var|response.text|
+log|info|str|Hello World|
+log|debug|var|variable1|
+log|critical|str|Deprecated module found|
+log|error|var|variableX|
+ss|
+screenshot|test
+Comment Text|
+#|Comment Text
+comment|Comment Text
+click|//button[@id=submit]|70,200|1920x780|
+input|//input[@name=username]|test_user|text|None
+input|//textarea[@id=description]|U29tZSBtdWx0aS1saW5lIHRleHQ=|textarea|encoded
+submit|//form[@id=loginForm]
+sleep|5
+#|Format: wait|xpath|until/until_not|condition|timeout
+wait|//div[@id='example']|until|visible|7|
+wait|//div[@id='example']|until|invisible|7|
+wait|//button[@id='submit']|until|clickable|7|
+wait|//span[@class='status']|until|presence|7|
+wait|//div[@id='staleElement']|until|staleness|7|
+wait|//input[@id='checkbox']|until|selected|7|
+wait|//input[@id='checkbox']|until|deselected|7|
+wait|//div[@id='message']|until|text_to_be_present|7|Hello World
+wait|//input[@id='textbox']|until|text_to_be_present_in_value|7|Example Value
+wait|//iframe[@id='frame']|until|frame_to_be_available|7|
+wait||until|alert_is_present|7|
+wait||until|title_contains|7|Page Title
+wait||until_not|title_is|7|Exact Page Title
+wait||until|url_contains|7|example.com
+wait||until|url_matches|7|https://example.com
+wait||until|url_to_be|7|https://example.com/home
+wait||until|url_changes|7|
+wait||until_not|number_of_windows_to_be|7|2
+wait||until|new_window_is_opened|7|
+wait|//input[@id='checkbox']|until|element_located_to_be_selected|7|
+wait|//input[@id='checkbox']|until|element_selection_state_to_be|7|True
+wait|//input[@id='checkbox']|until|element_located_selection_state_to_be|7|False
+scroll|
+scroll_up|
+scroll_to|//div[@id=content]
+scroll_by|0|500|1920x780|
+scroll_by|0|-500|1920x780|
+hover|//button[@class=menu]
+double_click|//button[@class=edit]
+double_click|//button[@class=edit]
+drag_and_drop|//div[@id=item]|//div[@id=arget]||
+drag_and_drop_by|//div[@id=item]|70|200|
+accept_alert|
+dismiss_alert|
+send_keys_alert|username123
+get_alert_text|
+set_alert_text|Hello World
+get_attribute|//input[@id=username]|value||
+get_css_value|//div[@id=box]|color||
+get_property|//input[@id=checkbox]|checked||
+get_text|//p[@id=message]
+get_title|
+get_url
+get_page_source|
+get_cookies|
+add_cookie|{'name': 'John Doe', 'value': 12345}
+delete_cookie|session
+delete_all_cookies|
+request|Y3VybCAtLWxvY2F0aW9uICdodHRwczovL2pzb25wbGFjZWhvbGRlci50eXBpY29kZS5jb20vcG9zdHMnIC1YICdQT1NUJyAtLWhlYWRlciAnQ29udGVudC1UeXBlOiBhcHBsaWNhdGlvbi9qc29uJyAtLWhlYWRlciAnQWNjZXB0OiBhcHBsaWNhdGlvbi9qc29uJyAtLWRhdGEgJ3sidGl0bGUiOiJmb28iLCJib2R5IjoiYmFyIiwidXNlcklkIjoxfSc=

@@ -3,8 +3,6 @@ from tkinter import messagebox, ttk
 import base64
 import re
 import pyperclip
-from gui import SeleniumScriptGeneratorApp as sa
-import json
 
 class CurlEditorApp:
     def __init__(self, root):
@@ -27,14 +25,12 @@ class CurlEditorApp:
         # Parse button
         tk.Button(root, text="Parse cURL", command=self.parse_curl).grid(row=2, column=0, columnspan=2, pady=5)
 
-        # Method dropdown
+        # Method entry
         self.method_label = tk.Label(root, text="Method:")
         self.method_label.grid(row=3, column=0, sticky="w", padx=5, pady=2)
-        self.method_var = tk.StringVar(value="GET")
-        self.method_dropdown = ttk.Combobox(root, textvariable=self.method_var, 
-                                          values=["GET", "POST", "PUT", "DELETE", "PATCH", "HEAD", "OPTIONS"],
-                                          state="readonly")
-        self.method_dropdown.grid(row=4, column=0, columnspan=2, sticky="ew", padx=5, pady=2)
+        self.method_entry = tk.Entry(root)
+        self.method_entry.insert(0, "GET")  # Default method
+        self.method_entry.grid(row=4, column=0, columnspan=2, sticky="ew", padx=5, pady=2)
 
         # URL field
         self.url_label = tk.Label(root, text="URL:")
@@ -76,20 +72,25 @@ class CurlEditorApp:
             return
 
         try:
+            # Normalize multiline cURL commands (PowerShell: ^, Unix: \)
+            curl_command = re.sub(r'\\\s*\n', ' ', curl_command)  # Unix-style continuation
+            curl_command = re.sub(r'\^\s*\n', ' ', curl_command)  # PowerShell-style continuation
+
             # Extract URL
-            url_match = re.search(r"--location '(.*?)'", curl_command)
+            url_match = re.search(r"(?:--location|-X|curl)\s+'(.*?)'", curl_command)
             url = url_match.group(1) if url_match else ""
 
             # Extract method
             method_match = re.search(r"-X\s+'([^']+)'", curl_command)
             method = method_match.group(1) if method_match else "GET"
-            self.method_var.set(method)
+            self.method_entry.delete(0, tk.END)
+            self.method_entry.insert(0, method)
 
             # Extract Headers
-            headers = re.findall(r"--header\s+'([^']+)'", curl_command)
+            headers = re.findall(r"(?:-H|--header)\s+'([^']+)'", curl_command)
 
             # Extract Data
-            data_match = re.search(r"--data\s+'([^']+)'", curl_command, re.DOTALL)
+            data_match = re.search(r"(?:--data-raw|--data)\s+'([^']+)'", curl_command, re.DOTALL)
             data = data_match.group(1) if data_match else ""
 
             # Populate GUI fields
@@ -107,7 +108,7 @@ class CurlEditorApp:
 
     def convert_to_base64(self):
         url = self.url_entry.get()
-        method = self.method_var.get()
+        method = self.method_entry.get()
         headers = self.headers_text.get("1.0", tk.END).strip().split("\n")
         data = self.data_entry.get("1.0", tk.END)
 

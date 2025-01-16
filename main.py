@@ -7,7 +7,8 @@ input 1 = xpath
 input 2 = coords
 input 3 = viewport
 input 4 = timeout
-input0|input1|input2|input3|input4
+unput 5 = text
+input0|input1|input2|input3|input4|input5
 """
 def main():
     root = tk.Tk()

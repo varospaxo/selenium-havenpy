@@ -5,6 +5,7 @@ import os
 import subprocess
 import csv
 from script_generator import ScriptGenerator
+from reqgen_gui import CurlEditorApp
 
 class SeleniumScriptGeneratorApp:
     def __init__(self, root):
@@ -50,7 +51,9 @@ class SeleniumScriptGeneratorApp:
 
         # Add button to trigger reqgen_gui.py
         def trigger_reqgen_gui():
-            subprocess.Popen(["python", "reqgen_gui.py"])
+            root = tk.Tk()
+            app = CurlEditorApp(root)
+            root.mainloop()
 
         reqgen_button = tk.Button(self.main_frame, text="Add API", command=trigger_reqgen_gui,
                                 bg="#FFA500", fg="white", font=("Helvetica", 10, "bold"))
@@ -265,7 +268,8 @@ class SeleniumScriptGeneratorApp:
         coords = action[2].strip() if len(action) > 2 else ""
         viewport = action[3].strip() if len(action) > 3 else ""
         timeout = action[4].strip() if len(action) > 4 else ""
-        return (action_type, xpath, coords, viewport, timeout)
+        text = action[5].strip() if len(action) > 5 else ""
+        return (action_type, xpath, coords, viewport, timeout, text)
 
     def _save_generated_files(self, selected_browser, url, actions, input_values):
         # Get file paths

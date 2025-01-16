@@ -14,6 +14,7 @@ class ScriptGenerator:
             "import requests\n"
             "import json\n"
             "import logging\n"
+            "import base64\n"
             "from selenium import webdriver\n"
             "from selenium.webdriver.common.by import By\n"
             "from selenium.webdriver.support.ui import WebDriverWait\n"
@@ -67,8 +68,8 @@ class ScriptGenerator:
 
     def _generate_action(self, index, action):
         wait = 5
-        action_type, xpath, coords, viewport, timeout = action
-            
+        action_type, xpath, coords, viewport, timeout, text = action
+        # print(text)
         variable_name = f"input_value_{index}"
         action_type = action_type.replace("'", '"')
         xpath = xpath.replace("'", '"')
@@ -131,7 +132,6 @@ class ScriptGenerator:
             if timeout == "encoded":
                 # Multi-line input
                 script += (
-                    f"import base64\n"
                     f"wait = WebDriverWait(driver, {wait})\n"
                     f"element = wait.until(EC.presence_of_element_located((By.XPATH, '{xpath}')))\n"
                     f"element.clear()\n"
@@ -162,9 +162,6 @@ class ScriptGenerator:
                 f"time.sleep({xpath})\n"
             )
         elif action_type == "wait":
-            timeout = timeout if timeout else 5  # Set timeout default if not specified
-            script += f"try:\n"
-            script += f"    wait = WebDriverWait(driver, {timeout})\n"
             condition_map = {
                 "visible": "visibility_of_element_located",
                 "invisible": "invisibility_of_element_located",
@@ -187,24 +184,73 @@ class ScriptGenerator:
                 "new_window_is_opened": "new_window_is_opened",
                 "element_located_to_be_selected": "element_located_to_be_selected",
                 "element_selection_state_to_be": "element_selection_state_to_be",
-                "element_located_selection_state_to_be": "element_located_selection_state_to_be"   
+                "element_located_selection_state_to_be": "element_located_selection_state_to_be"
             }
-            if viewport in condition_map:
-                condition = condition_map[viewport]
-                if coords == "until":
-                    script += f"    wait.until(EC.{condition}((By.XPATH, '{xpath}')))\n"
-                elif coords == "until_not":
-                    script += f"    wait.until_not(EC.{condition}((By.XPATH, '{xpath}')))\n"
-            script += "except:\n"
-            script += "    print('Wait element failed')\n"
-            script += "    logging.info('Wait element failed')\n"
-        
+
+            try:
+                if viewport in condition_map:
+                    condition = condition_map[viewport]
+                    timeout_value = int(timeout) if isinstance(timeout, (int, str)) else 5
+                    script += f"try:\n"
+                    script += f"    wait = WebDriverWait(driver, {timeout_value})\n"
+                    if coords == "until":
+                        if condition in ["text_to_be_present_in_element", "text_to_be_present_in_element_value"]:
+                            script += f"    wait.until(EC.{condition}((By.XPATH, '{xpath}'), '{text}'))\n"
+                        elif condition == "staleness_of":
+                            script += f"    status_element = driver.find_element(By.XPATH, '{xpath}')\n"
+                            script += f"    wait.until(EC.{condition}(status_element))\n"
+                        elif condition in ["number_of_windows_to_be"]:
+                            script += f"    wait.until(EC.{condition}({text}))\n"
+                        elif condition in ["element_selection_state_to_be", "element_located_selection_state_to_be"]:
+                            script += f"    wait.until(EC.{condition}((By.XPATH, '{xpath}'), {text}))\n"
+                        elif condition == "alert_is_present":
+                            script += f"    wait.until(EC.{condition}())\n"
+                        elif condition in ["title_contains", "title_is", "url_contains", "url_matches", "url_to_be", "url_changes"]:
+                            script += f"    wait.until(EC.{condition}('{text}'))\n"
+                        elif condition == "new_window_is_opened":
+                            script += f"    wait.until(EC.{condition}())\n"
+                        elif condition == "frame_to_be_available":
+                            script += f"    wait.until(EC.{condition}((By.XPATH, '{xpath}')))\n"
+                        else:
+                            script += f"    wait.until(EC.{condition}((By.XPATH, '{xpath}')))\n"
+                    if coords == "until_not":
+                        if condition in ["text_to_be_present_in_element", "text_to_be_present_in_element_value"]:
+                            script += f"    wait.until_not(EC.{condition}((By.XPATH, '{xpath}'), '{text}'))\n"
+                        elif condition == "staleness_of":
+                            script += f"    status_element = driver.find_element(By.XPATH, '{xpath}')\n"
+                            script += f"    wait.until_not(EC.{condition}(status_element))\n"
+                        elif condition in ["number_of_windows_to_be"]:
+                            script += f"    wait.until_not(EC.{condition}({text}))\n"
+                        elif condition in ["element_selection_state_to_be", "element_located_selection_state_to_be"]:
+                            script += f"    wait.until_not(EC.{condition}((By.XPATH, '{xpath}'), {text}))\n"
+                        elif condition == "alert_is_present":
+                            script += f"    wait.until_not(EC.{condition}())\n"
+                        elif condition in ["title_contains", "title_is", "url_contains", "url_matches", "url_to_be", "url_changes"]:
+                            script += f"    wait.until_not(EC.{condition}('{text}'))\n"
+                        elif condition == "new_window_is_opened":
+                            script += f"    wait.until_not(EC.{condition}())\n"
+                        elif condition == "frame_to_be_available":
+                            script += f"    wait.until_not(EC.{condition}((By.XPATH, '{xpath}')))\n"
+                        else:
+                            script += f"    wait.until_not(EC.{condition}((By.XPATH, '{xpath}')))\n"
+                    script += "except:\n"
+                    script += "    print('Wait condition failed')\n"
+                    script += "    logging.info('Wait condition failed')\n"
+                else:
+                    raise ValueError("Unsupported viewport condition")
+
+            except Exception as e:
+                script += f"# Error: {str(e)}\n"
+
         elif action_type == "request":
             curl_command = base64.b64decode(xpath).decode('utf-8')
 
                 # Extract the HTTP method (default to GET)
-            method_match = re.search(r"-X\s+(\w+)", curl_command)
-            method = method_match.group(1) if method_match else "GET"
+            method_match = re.search(r"-X\s+['\"](\w+)['\"]", curl_command)
+            if method_match:
+                method = method_match.group(1)
+            else:
+                print("HTTP Method not found")
 
             # # Override method if --data or --form is present and method is not explicitly defined
             # if method == "GET" and ("--data" in curl_command or "--form" in curl_command):
@@ -232,12 +278,12 @@ class ScriptGenerator:
                 except json.JSONDecodeError:
                     print("Payload is not valid JSON, skipping payload.")
                     payload = None
-
             # Generate Python code
 
             script +=f"url = '{url}'\n"
             script +=f"method = '{method}'\n"
-            script +=f"payload = json.dumps({payload})\n"
+            script +=f"payload_body = '''{payload}'''\n"
+            script +=f"payload = json.dumps(json.loads(payload_body))\n"
             script +=f"headers = {json.dumps(headers, indent=2)}\n"
             if payload is not None and headers is not None:
                 script +=f"response = requests.request(method, url, headers=headers, data=payload)\n"
@@ -281,7 +327,7 @@ class ScriptGenerator:
         elif action_type == "scroll_up":
             script += f"driver.execute_script('window.scrollTo(0, 0)')\n"
         elif action_type == "scroll_to":
-            script += f"element = driver.find_element_by_xpath('{xpath}')\n"
+            script += f"element = driver.find_element(By.XPATH, '{xpath}')\n"
             script += f"driver.execute_script('arguments[0].scrollIntoView(true);', element)\n"
         elif action_type == "scroll_by":
             if viewport and 'x' in viewport.lower():
@@ -298,15 +344,15 @@ class ScriptGenerator:
             coords = int(float(coords))
             script += f"driver.execute_script('window.scrollBy({xpath}, {coords})')\n"
         elif action_type == "hover":
-            script += f"element = driver.find_element_by_xpath('{xpath}')\n"
+            script += f"element = driver.find_element(By.XPATH, '{xpath}')\n"
             script += f"actions = ActionChains(driver)\n"
             script += f"actions.move_to_element(element).perform()\n"
         elif action_type == "right_click":
-            script += f"element = driver.find_element_by_xpath('{xpath}')\n"
+            script += f"element = driver.find_element(By.XPATH, '{xpath}')\n"
             script += f"actions = ActionChains(driver)\n"
             script += f"actions.context_click(element).perform()\n"
         elif action_type == "double_click":
-            script += f"element = driver.find_element_by_xpath('{xpath}')\n"
+            script += f"element = driver.find_element(By.XPATH, '{xpath}')\n"
             script += f"actions = ActionChains(driver)\n"
             script += f"actions.double_click(element).perform()\n"
         elif action_type == "drag_and_drop":
@@ -315,7 +361,7 @@ class ScriptGenerator:
             script += f"actions = ActionChains(driver)\n"
             script += f"actions.drag_and_drop(source, target).perform()\n"
         elif action_type == "drag_and_drop_by":
-            script += f"element = driver.find_element_by_xpath('{xpath}')\n"
+            script += f"element = driver.find_element(By.XPATH, '{xpath}')\n"
             script += f"actions = ActionChains(driver)\n"
             script += f"actions.drag_and_drop_by_offset(element, {coords}, {viewport}).perform()\n"
         elif action_type == "accept_alert":
@@ -329,16 +375,16 @@ class ScriptGenerator:
         elif action_type == "set_alert_text":
             script += f"driver.execute_script(\"alert('{xpath}')\")\n"
         elif action_type == "get_attribute":
-            script += f"element = driver.find_element_by_xpath('{xpath}')\n"
+            script += f"element = driver.find_element(By.XPATH, '{xpath}')\n"
             script += f"attribute = element.get_attribute('{coords}')\n"
         elif action_type == "get_css_value":
-            script += f"element = driver.find_element_by_xpath('{xpath}')\n"
+            script += f"element = driver.find_element(By.XPATH, '{xpath}')\n"
             script += f"css_value = element.value_of_css_property('{coords}')\n"
         elif action_type == "get_property":
-            script += f"element = driver.find_element_by_xpath('{xpath}')\n"
+            script += f"element = driver.find_element(By.XPATH, '{xpath}')\n"
             script += f"property = element.get_property('{coords}')\n"
         elif action_type == "get_text":
-            script += f"element = driver.find_element_by_xpath('{xpath}')\n"
+            script += f"element = driver.find_element(By.XPATH, '{xpath}')\n"
             script += f"text = element.text\n"
         elif action_type == "get_title":
             script += f"title = driver.title\n"

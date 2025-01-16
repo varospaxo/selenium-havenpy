@@ -1,30 +1,195 @@
-click|//button[@id="submit"]|100,200|1920x1080|
-input|//input[@name="username"]|test_user
-submit|//form[@id="loginForm"]|
-sleep|5|
-wait|//div[@id="loading"]|until|visible|10
-scroll
-scroll_up
-scroll_to|//div[@id="content"]|
-scroll_by|0|500
-hover|//button[@class="menu"]|
-right_click|//div[@id="context-menu"]|
-double_click|//button[@class="edit"]|
-drag_and_drop|//div[@id="item"]|//div[@id="target"]
-drag_and_drop_by|//div[@id="item"]|100|200|
-accept_alert
-dismiss_alert
-send_keys_alert|username123|
-get_alert_text
-set_alert_text|Hello World|
-get_attribute|//input[@id="username"]|value
-get_css_value|//div[@id="box"]|color
-get_property|//input[@id="checkbox"]|checked
-get_text|//p[@id="message"]|
-get_title
-get_url
-get_page_source
-get_cookies
-add_cookie|{"name": "session", "value": "12345"}|
-delete_cookie|session|
-delete_all_cookies
+#|Prefix text||||
+log|warning|var|response.text||
+#|Suffix text||||
+#|Prefix text||||
+log|info|str|Hello World||
+#|Suffix text||||
+#|Prefix text||||
+log|debug|var|variable1||
+#|Suffix text||||
+#|Prefix text||||
+log|critical|str|Deprecated module found||
+#|Suffix text||||
+#|Prefix text||||
+log|error|var|variableX||
+#|Suffix text||||
+#|Prefix text||||
+ss|||||
+#|Suffix text||||
+#|Prefix text||||
+screenshot|test||||
+#|Suffix text||||
+#|Prefix text||||
+Comment Text|||||
+#|Suffix text||||
+#|Prefix text||||
+#|Comment Text||||
+#|Suffix text||||
+#|Prefix text||||
+comment|Comment Text||||
+#|Suffix text||||
+#|Prefix text||||
+click|//button[@id=submit]|70,200|1920x780||
+#|Suffix text||||
+#|Prefix text||||
+input|//input[@name=username]|test_user|text|None|
+#|Suffix text||||
+#|Prefix text||||
+input|//textarea[@id=description]|U29tZSBtdWx0aS1saW5lIHRleHQ=|textarea|encoded|
+#|Suffix text||||
+#|Prefix text||||
+submit|//form[@id=loginForm]||||
+#|Suffix text||||
+#|Prefix text||||
+sleep|5||||
+#|Suffix text||||
+#|Prefix text||||
+#|Format: wait|xpath|until/until_not|condition|timeout
+#|Suffix text||||
+#|Prefix text||||
+wait|//div[@id='example']|until|visible|7|
+#|Suffix text||||
+#|Prefix text||||
+wait|//div[@id='example']|until|invisible|7|
+#|Suffix text||||
+#|Prefix text||||
+wait|//button[@id='submit']|until|clickable|7|
+#|Suffix text||||
+#|Prefix text||||
+wait|//span[@class='status']|until|presence|7|
+#|Suffix text||||
+#|Prefix text||||
+wait|//div[@id='staleElement']|until|staleness|7|
+#|Suffix text||||
+#|Prefix text||||
+wait|//input[@id='checkbox']|until|selected|7|
+#|Suffix text||||
+#|Prefix text||||
+wait|//input[@id='checkbox']|until|deselected|7|
+#|Suffix text||||
+#|Prefix text||||
+wait|//div[@id='message']|until|text_to_be_present|7|Hello World
+#|Suffix text||||
+#|Prefix text||||
+wait|//input[@id='textbox']|until|text_to_be_present_in_value|7|Example Value
+#|Suffix text||||
+#|Prefix text||||
+wait|//iframe[@id='frame']|until|frame_to_be_available|7|
+#|Suffix text||||
+#|Prefix text||||
+wait||until|alert_is_present|7|
+#|Suffix text||||
+#|Prefix text||||
+wait||until|title_contains|7|Page Title
+#|Suffix text||||
+#|Prefix text||||
+wait||until_not|title_is|7|Exact Page Title
+#|Suffix text||||
+#|Prefix text||||
+wait||until|url_contains|7|example.com
+#|Suffix text||||
+#|Prefix text||||
+wait||until|url_matches|7|https://example.com
+#|Suffix text||||
+#|Prefix text||||
+wait||until|url_to_be|7|https://example.com/home
+#|Suffix text||||
+#|Prefix text||||
+wait||until|url_changes|7|
+#|Suffix text||||
+#|Prefix text||||
+wait||until_not|number_of_windows_to_be|7|2
+#|Suffix text||||
+#|Prefix text||||
+wait||until|new_window_is_opened|7|
+#|Suffix text||||
+#|Prefix text||||
+wait|//input[@id='checkbox']|until|element_located_to_be_selected|7|
+#|Suffix text||||
+#|Prefix text||||
+wait|//input[@id='checkbox']|until|element_selection_state_to_be|7|True
+#|Suffix text||||
+#|Prefix text||||
+wait|//input[@id='checkbox']|until|element_located_selection_state_to_be|7|False
+#|Suffix text||||
+#|Prefix text||||
+scroll|||||
+#|Suffix text||||
+#|Prefix text||||
+scroll_up|||||
+#|Suffix text||||
+#|Prefix text||||
+scroll_to|//div[@id=content]||||
+#|Suffix text||||
+#|Prefix text||||
+scroll_by|0|500|1920x780||
+#|Suffix text||||
+#|Prefix text||||
+scroll_by|0|-500|1920x780||
+#|Suffix text||||
+#|Prefix text||||
+hover|//button[@class=menu]||||
+#|Suffix text||||
+#|Prefix text||||
+double_click|//button[@class=edit]||||
+#|Suffix text||||
+#|Prefix text||||
+double_click|//button[@class=edit]||||
+#|Suffix text||||
+#|Prefix text||||
+drag_and_drop|//div[@id=item]|//div[@id=arget]|||
+#|Suffix text||||
+#|Prefix text||||
+drag_and_drop_by|//div[@id=item]|70|200||
+#|Suffix text||||
+#|Prefix text||||
+accept_alert|||||
+#|Suffix text||||
+#|Prefix text||||
+dismiss_alert|||||
+#|Suffix text||||
+#|Prefix text||||
+send_keys_alert|username123||||
+#|Suffix text||||
+#|Prefix text||||
+get_alert_text|||||
+#|Suffix text||||
+#|Prefix text||||
+set_alert_text|Hello World||||
+#|Suffix text||||
+#|Prefix text||||
+get_attribute|//input[@id=username]|value|||
+#|Suffix text||||
+#|Prefix text||||
+get_css_value|//div[@id=box]|color|||
+#|Suffix text||||
+#|Prefix text||||
+get_property|//input[@id=checkbox]|checked|||
+#|Suffix text||||
+#|Prefix text||||
+get_text|//p[@id=message]||||
+#|Suffix text||||
+#|Prefix text||||
+get_title|||||
+#|Suffix text||||
+#|Prefix text||||
+get_url|||||
+#|Suffix text||||
+#|Prefix text||||
+get_page_source|||||
+#|Suffix text||||
+#|Prefix text||||
+get_cookies|||||
+#|Suffix text||||
+#|Prefix text||||
+add_cookie|{'name': 'John Doe', 'value': 12345}||||
+#|Suffix text||||
+#|Prefix text||||
+delete_cookie|session||||
+#|Suffix text||||
+#|Prefix text||||
+delete_all_cookies|||||
+#|Suffix text||||
+#|Prefix text||||
+request|Y3VybCAtLWxvY2F0aW9uICdodHRwczovL2pzb25wbGFjZWhvbGRlci50eXBpY29kZS5jb20vcG9zdHMnIC1YICdQT1NUJyAtLWhlYWRlciAnQ29udGVudC1UeXBlOiBhcHBsaWNhdGlvbi9qc29uJyAtLWhlYWRlciAnQWNjZXB0OiBhcHBsaWNhdGlvbi9qc29uJyAtLWRhdGEgJ3sidGl0bGUiOiJmb28iLCJib2R5IjoiYmFyIiwidXNlcklkIjoxfSc==||||
+#|Suffix text||||

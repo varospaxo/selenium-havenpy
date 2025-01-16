@@ -2,3 +2,4 @@ Generated/*
 !Generated/GeneratedScript/
 !Generated/test/
 __pycache__/
+output

@@ -1,0 +1,10 @@
+2025-01-14 14:56:22,966 - WARNING - Hello World
+2025-01-14 14:56:22,966 - INFO - Hello World
+2025-01-14 14:56:22,966 - CRITICAL - Deprecated module found
+2025-01-14 14:56:22,966 - ERROR - Hello World
+2025-01-14 14:56:30,165 - INFO - Failed to find XPath: //button[@id=submit]. Trying coordinate click.
+2025-01-14 15:00:38,748 - WARNING - Hello World
+2025-01-14 15:00:38,749 - INFO - Hello World
+2025-01-14 15:00:38,749 - CRITICAL - Deprecated module found
+2025-01-14 15:00:38,749 - ERROR - Hello World
+2025-01-14 15:00:46,218 - INFO - Failed to find XPath: //button[@id=submit]. Trying coordinate click.
