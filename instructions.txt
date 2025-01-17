@@ -212,3 +212,7 @@ Note: Never use XPaths and inputs with single quotes ('')
     Example: ss
              screenshot
              ss|test
+
+33. paste - Pastes content copied from the clipboard into the specified element
+    Format: paste|XPath
+            paste|//textarea[@id=description]

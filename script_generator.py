@@ -146,7 +146,20 @@ class ScriptGenerator:
                     f"element.clear()\n"
                     f"element.send_keys(input_values['{variable_name}'])\n"
                 )
-
+        elif action_type == "paste":
+            if xpath not in ["", " "]:
+                script += (
+                    f"wait = WebDriverWait(driver, {wait})\n"
+                    f"element = wait.until(EC.presence_of_element_located((By.XPATH, '{xpath}')))\n"
+                    f"element.clear()\n"
+                    f"element.send_keys(Keys.CONTROL, 'v')\n"
+                )
+            else:
+                script += (
+                    f"element = driver.switch_to.active_element\n"
+                    f"element.clear()\n"
+                    f"element.send_keys(Keys.CONTROL, 'v')\n"
+                )
         elif action_type == "submit":
             script += (
                 f"wait = WebDriverWait(driver, {wait})\n"
