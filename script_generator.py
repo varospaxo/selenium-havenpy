@@ -25,6 +25,7 @@ class ScriptGenerator:
             "start_time = datetime.now()\n"
             "start_time = start_time.strftime('%d%m%Y_%H%M%S')\n"
             "print('Start time:', start_time)\n"
+            "step=0\n"
             "if not os.path.exists(start_time):\n"
             "    os.makedirs(start_time)\n"
             "logging.basicConfig(\n"
@@ -416,6 +417,8 @@ class ScriptGenerator:
             script += f"driver.delete_cookie('{xpath}')\n"
         elif action_type == "delete_all_cookies":
             script += f"driver.delete_all_cookies()\n"
+        elif action_type == "step":
+            script += f"print((step := step + 1))\n"
         elif action_type == "ss" or action_type == "screenshot":
             if xpath:
                 file_name = xpath+".png"

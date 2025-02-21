@@ -215,4 +215,8 @@ Note: Never use XPaths and inputs with single quotes ('')
 
 33. paste - Pastes content copied from the clipboard into the specified element
     Format: paste|XPath
-            paste|//textarea[@id=description]
+    Example: paste|//textarea[@id=description]
+
+34. step - Can be used to print incremental step counts in terminal for easier debugging. Can be used as prefix/suffix action to display each step count.
+    Format: step
+    Example: step
