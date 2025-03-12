@@ -54,8 +54,22 @@ class ScriptGenerator:
             "           return [window.outerWidth - window.innerWidth + arguments[0],\n"
             "                   window.outerHeight - window.innerHeight + arguments[1]];\n"
             "           \"\"\", width, height)\n"
-            "       driver.set_window_size(*window_size)\n\n"
-            "except: pass\n"
+            "       driver.set_window_size(*window_size)\n"
+            "except: pass\n\n"
+        )
+
+        script += (
+            "def capture_screenshot(filename=None):\n"
+            "   if filename:\n"
+            "       file_name = filename + '.png' if not filename.endswith('.png') else filename\n"
+            "       filepath = os.path.join(start_time, file_name)\n"
+            "       driver.save_screenshot(filepath)\n"
+            "   else:\n"
+            "       current_time = datetime.now()\n"
+            "       filename = current_time.strftime('Screenshot-%d%m%y_%H%M%S') + '.png'\n"
+            "       filepath = os.path.join(start_time, filename)\n"
+            "       driver.save_screenshot(filepath)\n"
+            "       time.sleep(1)\n\n"
         )
 
         script += (
@@ -80,7 +94,7 @@ class ScriptGenerator:
             "       set_viewport_size(driver, vpx, vpy)\n"
             "       actions = ActionChains(driver)\n"
             "       actions.move_by_offset(x, y).click().perform()\n"
-            "       actions.move_by_offset(-(x), -(y)).perform()\n"
+            "       actions.move_by_offset(-(x), -(y)).perform()\n\n"
         )
         
         script += f"driver.get('{url}')\n"
@@ -422,11 +436,7 @@ class ScriptGenerator:
             script += f"print((step := step + 1))\n"
         elif action_type == "ss" or action_type == "screenshot":
             if xpath:
-                file_name = xpath+".png"
-                script += f"driver.save_screenshot('{file_name}')\n"
+                script += f"capture_screenshot('{xpath}')\n"
             else:
-                script += f"current_time = datetime.now()\n"
-                script += f"filename = current_time.strftime('Screenshot-%d%m%y_%H%M%S') + '.png'\n"
-                script += f"filepath = os.path.join(start_time, filename)\n"
-                script += f"driver.save_screenshot(filepath)\n"
+                script += f"capture_screenshot()\n"
         return script
