@@ -57,6 +57,31 @@ class ScriptGenerator:
             "       driver.set_window_size(*window_size)\n\n"
             "except: pass\n"
         )
+
+        script += (
+            "def click_action(xpath, vpx, vpy, x, y):\n"
+            "   global force_clicks\n"
+            "   time.sleep(2)\n"
+            """   try: WebDriverWait(driver, 5).until_not(EC.presence_of_element_located((By.XPATH, "//ion-spinner[@id='spinner']")))\n"""
+            "   except: pass\n"
+            "   try:\n"
+            "       if force_clicks > 3:\n"
+            "           print('Force clicks exceeded limit. Exiting script.')\n"
+            "           logging.info(f'Failed to find XPath: {xpath}. Trying coordinate click.')\n"
+            "           sys.exit()\n"
+            "       wait = WebDriverWait(driver, 5)\n"
+            "       element = wait.until(EC.element_to_be_clickable((By.XPATH, xpath)))\n"
+            "       element.click()\n"
+            "       force_clicks=0\n"
+            "   except Exception as e:\n"
+            "       print(f'Failed to find XPath: {xpath}. Trying coordinate click.')\n"
+            "       logging.info(f'Failed to find XPath: {xpath}. Trying coordinate click.')\n"
+            "       force_clicks+=1\n"
+            "       set_viewport_size(driver, vpx, vpy)\n"
+            "       actions = ActionChains(driver)\n"
+            "       actions.move_by_offset(x, y).click().perform()\n"
+            "       actions.move_by_offset(-(x), -(y)).perform()\n"
+        )
         
         script += f"driver.get('{url}')\n"
         script += self._generate_actions(actions)
@@ -84,27 +109,6 @@ class ScriptGenerator:
         script = ""
         # Add viewport resize if dimensions are provided
         if action_type == "click":
-            script += (
-                f"time.sleep(2)\n"
-                f"try: WebDriverWait(driver, 5).until_not(EC.presence_of_element_located((By.XPATH, \"//ion-spinner[@id='spinner']\")))\n"
-                "except: pass\n"
-                "try:\n"
-                f"    if force_clicks > 3:\n"
-                f"      print('Force clicks exceeded limit. Exiting script.')\n"
-                f"      logging.info('Failed to find XPath: {xpath}. Trying coordinate click.')\n"
-                f"      sys.exit()\n"
-                f"    wait = WebDriverWait(driver, {wait})\n"
-                f"    element = wait.until(EC.element_to_be_clickable((By.XPATH, '{xpath}')))\n"
-                "    element.click()\n"
-                "    force_clicks=0\n"
-                # "    print(force_clicks)\n"
-                "except Exception as e:\n"
-                "    # Fallback to coordinates if XPath click fails\n"
-                    f"    print('Failed to find XPath: {xpath}. Trying coordinate click.')\n"
-                    f"    logging.info('Failed to find XPath: {xpath}. Trying coordinate click.')\n"
-                    f"    force_clicks+=1\n"
-                    # f"    print(force_clicks)\n"
-            )
             # Parse coordinates and viewport
             if coords and ',' in coords:
                 x, y = coords.split(',')
@@ -119,18 +123,15 @@ class ScriptGenerator:
                 width, height = None, None
 
             if width and height:
-                script += f"    set_viewport_size(driver, {width}, {height})\n"
+                pass
             else:
                 print("Viewport not provided or invalid.")
 
             if x and y:
-                script += (
-                    f"    actions = ActionChains(driver)\n"
-                    f"    actions.move_by_offset({x}, {y}).click().perform()\n"
-                    f"    actions.move_by_offset(-{x}, -{y}).perform()\n"  # Fixed string formatting
-                )
+                pass
             else:
                 print("Coordinates not provided or invalid.")
+            script += f"click_action('{xpath}', {width}, {height}, {x}, {y})\n"
            
         elif action_type in ["type", "input"]:
             if timeout == "encoded":
