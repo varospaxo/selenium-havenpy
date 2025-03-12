@@ -4,6 +4,7 @@ import sys
 import requests
 import json
 import logging
+import os
 import base64
 from selenium import webdriver
 from selenium.webdriver.common.by import By
@@ -12,8 +13,11 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.action_chains import ActionChains
 from datetime import datetime
 start_time = datetime.now()
-start_time = start_time.strftime('%H%M%S')
+start_time = start_time.strftime('%d%m%Y_%H%M%S')
 print('Start time:', start_time)
+step=0
+if not os.path.exists(start_time):
+    os.makedirs(start_time)
 logging.basicConfig(
 filename='run.log',
 level=logging.INFO,
@@ -33,11 +37,48 @@ try:
                    window.outerHeight - window.innerHeight + arguments[1]];
            """, width, height)
        driver.set_window_size(*window_size)
-
 except: pass
+
+def capture_screenshot(filename=None):
+   if filename:
+       file_name = filename + '.png' if not filename.endswith('.png') else filename
+       filepath = os.path.join(start_time, file_name)
+       driver.save_screenshot(filepath)
+   else:
+       current_time = datetime.now()
+       filename = current_time.strftime('Screenshot-%d%m%y_%H%M%S') + '.png'
+       filepath = os.path.join(start_time, filename)
+       driver.save_screenshot(filepath)
+       time.sleep(1)
+
+def click_action(xpath, vpx, vpy, x, y):
+   global force_clicks
+   time.sleep(2)
+   try: WebDriverWait(driver, 5).until_not(EC.presence_of_element_located((By.XPATH, "//ion-spinner[@id='spinner']")))
+   except: pass
+   try:
+       if force_clicks > 3:
+           print('Force clicks exceeded limit. Exiting script.')
+           logging.info(f'Failed to find XPath: {xpath}. Trying coordinate click.')
+           sys.exit()
+       wait = WebDriverWait(driver, 5)
+       element = wait.until(EC.element_to_be_clickable((By.XPATH, xpath)))
+       element.click()
+       force_clicks=0
+   except Exception as e:
+       print(f'Failed to find XPath: {xpath}. Trying coordinate click.')
+       logging.info(f'Failed to find XPath: {xpath}. Trying coordinate click.')
+       force_clicks+=1
+       set_viewport_size(driver, vpx, vpy)
+       actions = ActionChains(driver)
+       actions.move_by_offset(x, y).click().perform()
+       actions.move_by_offset(-(x), -(y)).perform()
+
+
 response_text = "Hello World" 
 variable1 = "Hello World"
 variableX = "Hello World"
+
 driver.get('https://example.com')
 # Prefix text
 logging.warning(response_text)
@@ -55,43 +96,21 @@ logging.critical('Deprecated module found')
 logging.error(variableX)
 # Suffix text
 # Prefix text
-current_time = datetime.now()
-filename = current_time.strftime('Screenshot-'+start_time+'_%d%m%y_%H%M%S') + '.png'
-driver.save_screenshot(filename)
+capture_screenshot()
 # Suffix text
 # Prefix text
-driver.save_screenshot('test.png')
+capture_screenshot('test')
 # Suffix text
 # Prefix text
-# Suffix text
-# Prefix text
-# Comment Text
 # Suffix text
 # Prefix text
 # Comment Text
 # Suffix text
 # Prefix text
-time.sleep(2)
-try: WebDriverWait(driver, 5).until_not(EC.presence_of_element_located((By.XPATH, "//ion-spinner[@id='spinner']")))
-except: pass
-try:
-    if force_clicks > 3:
-      print('Force clicks exceeded limit. Exiting script.')
-      logging.info('Failed to find XPath: //button[@id=submit]. Trying coordinate click.')
-      sys.exit()
-    wait = WebDriverWait(driver, 5)
-    element = wait.until(EC.element_to_be_clickable((By.XPATH, '//button[@id=submit]')))
-    element.click()
-    force_clicks=0
-except Exception as e:
-    # Fallback to coordinates if XPath click fails
-    print('Failed to find XPath: //button[@id=submit]. Trying coordinate click.')
-    logging.info('Failed to find XPath: //button[@id=submit]. Trying coordinate click.')
-    force_clicks+=1
-    set_viewport_size(driver, 1920, 780)
-    actions = ActionChains(driver)
-    actions.move_by_offset(70, 200).click().perform()
-    actions.move_by_offset(-70, -200).perform()
+# Comment Text
+# Suffix text
+# Prefix text
+click_action('//button[@id=submit]', 1920, 780, 70, 200)
 # Suffix text
 # Prefix text
 wait = WebDriverWait(driver, 5)
