@@ -391,7 +391,7 @@ class ScriptGenerator:
             script += f"source = driver.find_element(By.XPATH,'{xpath}')\n"
             script += f"target = driver.find_element(By.XPATH,'{coords}')\n"
             script += f"actions = ActionChains(driver)\n"
-            script += f"actions.drag_and_drop(source, target).perform()\n"
+            script += f"actions.click_and_hold(source).move_to_element(target).pause(10).release(target).perform()\n"
         elif action_type == "drag_and_drop_by":
             script += f"element = driver.find_element(By.XPATH, '{xpath}')\n"
             script += f"actions = ActionChains(driver)\n"
